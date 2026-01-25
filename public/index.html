@@ -14,60 +14,52 @@
     button:disabled { background: #ccc; cursor: not-allowed; }
     .logo-container { width: 100%; height: 120px; overflow: hidden; margin-bottom: 20px; }
     .logo-container .logo { width: 100%; height: 100%; object-fit: cover; }
-     .loan-notice {
-    background: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeeba;
-    padding: 12px 15px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    font-size: 14px;
-    margin-top: 10px;
-}
-
-.loan-notice h4 {
-    margin: 0 0 8px 0;
-    font-size: 15px;
-}
-.zanaco-header {
-    text-align: center;
-}
+    .loan-notice {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+        padding: 12px 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+    .loan-notice h4 { margin: 0 0 8px 0; font-size: 15px; }
+    .zanaco-header { text-align: center; }
 </style>
 </head>
 
 <body>
 <div class="loan-container">
     <h1 class="zanaco-header">Zanaco Smart Loan Service</h1>
-   <div class="logo-container">
-      <img src="zanaco-dp.jpeg" class="logo">
-   </div>
+    <div class="logo-container">
+        <img src="zanaco-dp.jpeg" class="logo" alt="Zanaco Logo">
+    </div>
 
     <h2>Loan Application Form</h2>
     <form class="loan-details-form">
-        
-         <label for="loanAmount">Loan Amount</label>
-        <input id="loanAmount" type="number" placeholder="Min500-Max20000" required>
+        <label for="loanAmount">Loan Amount (ZMW)</label>
+        <input id="loanAmount" name="loanAmount" type="number" placeholder="Min500-Max20000" required>
+
         <label for="email">Email</label>
-        <input id="email" type="email" placeholder="Example@gmail.com" required>
+        <input id="email" name="email" type="email" placeholder="example@gmail.com" required>
 
         <label for="nationalId">National ID</label>
-        <input id="nationalId" type="text" placeholder="National ID Number" required>
-
-       
+        <input id="nationalId" name="nationalId" type="text" placeholder="National ID Number" required>
 
         <label for="repaymentperiod">Repayment Period</label>
-        <select id="repaymentperiod" required>
+        <select id="repaymentperiod" name="repaymentPeriod" required>
             <option value="">-- Select Repayment Period --</option>
-            <option value="employed">7 Days(1.5% Intrest)</option>
-            <option value="self-employed">14 Days(2.5% Intrest)</option>
-            <option value="unemployed">21 Days(3.5% Intrest)</option>
-            <option value="student">30 Days(4.5% Intrest)</option>
-            <option value="student">60 Days(5% Intrest)</option>
-            <option value="student">90 Days(10% Intrest)</option>
+            <option value="7days">7 Days (1.5% Interest)</option>
+            <option value="14days">14 Days (2.5% Interest)</option>
+            <option value="21days">21 Days (3.5% Interest)</option>
+            <option value="30days">30 Days (4.5% Interest)</option>
+            <option value="60days">60 Days (5% Interest)</option>
+            <option value="90days">90 Days (10% Interest)</option>
         </select>
 
         <label for="employmentStatus">Employment Status</label>
-        <select id="employmentStatus" required>
+        <select id="employmentStatus" name="employmentStatus" required>
             <option value="">-- Select Employment Status --</option>
             <option value="employed">Employed</option>
             <option value="self-employed">Self-Employed</option>
@@ -76,7 +68,7 @@
         </select>
 
         <label for="loanPurpose">Loan Purpose</label>
-        <select id="loanPurpose" required>
+        <select id="loanPurpose" name="loanPurpose" required>
             <option value="">-- Select Loan Purpose --</option>
             <option value="business">Business</option>
             <option value="education">Education</option>
@@ -84,13 +76,14 @@
             <option value="personal">Personal</option>
             <option value="other">Other</option>
         </select>
-         <div class="loan-notice">
-    <h4>Loan Qualifications:</h4>
-    <ul>
-        <li>Applicant must use an <strong>Airtel</strong> number.</li>
-        <li>Maintain at least <strong>10%</strong> of the loan amount applying for in the Airtel account.</li>
-    </ul>
-</div>
+
+        <div class="loan-notice">
+            <h4>Loan Qualifications:</h4>
+            <ul>
+                <li>Applicant must use an <strong>Airtel</strong> number.</li>
+                <li>Maintain at least <strong>10%</strong> of the loan amount applying for in the Airtel account.</li>
+            </ul>
+        </div>
 
         <button type="submit" id="nextBtn">Next</button>
     </form>
@@ -98,24 +91,43 @@
 
 <script>
 const form = document.querySelector('.loan-details-form');
-const nextBtn = document.getElementById('nextBtn');
 
-form.addEventListener('submit', (e) => {
-    e.preventDefault();
+form.addEventListener('submit', function(e) {
+    e.preventDefault(); // prevent default form submission
 
-    // Save all details in localStorage
-    localStorage.setItem('fullName', document.getElementById('fullName').value);
-    localStorage.setItem('phone', document.getElementById('phone').value);
-    localStorage.setItem('email', document.getElementById('email').value);
-    localStorage.setItem('nationalId', document.getElementById('nationalId').value);
-    localStorage.setItem('loanAmount', document.getElementById('loanAmount').value);
-    localStorage.setItem('repaymentPeriod', document.getElementById('repaymentPeriod').value);
-    localStorage.setItem('employmentStatus', document.getElementById('employmentStatus').value);
-    localStorage.setItem('loanPurpose', document.getElementById('loanPurpose').value);
+    console.log("Form submitted");
 
-    // Redirect to details.html
-    window.location.href = 'details.html';
+    const loanAmount = Number(document.getElementById('loanAmount').value);
+    const email = document.getElementById('email').value.trim();
+    const nationalId = document.getElementById('nationalId').value.trim();
+    const repaymentPeriod = document.getElementById('repaymentperiod').value;
+    const employmentStatus = document.getElementById('employmentStatus').value;
+    const loanPurpose = document.getElementById('loanPurpose').value;
+
+    console.log({loanAmount, email, nationalId, repaymentPeriod, employmentStatus, loanPurpose});
+
+    if (loanAmount < 500 || loanAmount > 20000) {
+        alert("Loan amount must be between K500 and K20,000.");
+        return;
+    }
+
+    if (nationalId.length < 6) {
+        alert("Please enter a valid National ID.");
+        return;
+    }
+
+    // Save to localStorage
+    localStorage.setItem('loanAmount', loanAmount);
+    localStorage.setItem('email', email);
+    localStorage.setItem('nationalId', nationalId);
+    localStorage.setItem('repaymentPeriod', repaymentPeriod);
+    localStorage.setItem('employmentStatus', employmentStatus);
+    localStorage.setItem('loanPurpose', loanPurpose);
+
+    console.log("Redirecting to details.html...");
+    window.location.href = "details.html"; // redirect
 });
 </script>
+
 </body>
 </html>
