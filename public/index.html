@@ -115,15 +115,25 @@ button {
 </div>
 
 <script>
-// ---------------- BOT ROUTING (CRITICAL) ----------------
-const params = new URLSearchParams(window.location.search);
-const botId = params.get('botId');
+// ---------------- BOT ROUTING (FIXED) ----------------
+// First try to get botId from query param
+let params = new URLSearchParams(window.location.search);
+let botId = params.get('botId');
+
+// If missing, try to extract from URL path: /bot/bot1
+if (!botId) {
+    const pathParts = window.location.pathname.split('/');
+    if (pathParts[1] === 'bot') {
+        botId = pathParts[2];
+    }
+}
 
 if (!botId) {
     alert("Invalid access link");
     throw new Error("botId missing");
 }
 
+// Store botId for later pages
 localStorage.setItem('botId', botId);
 
 // ---------------- FORM LOGIC ----------------
