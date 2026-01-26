@@ -116,24 +116,15 @@ button {
 
 <script>
 // ---------------- BOT ROUTING (FIXED) ----------------
-// First try to get botId from query param
-let params = new URLSearchParams(window.location.search);
-let botId = params.get('botId');
-
-// If missing, try to extract from URL path: /bot/bot1
-if (!botId) {
-    const pathParts = window.location.pathname.split('/');
-    if (pathParts[1] === 'bot') {
-        botId = pathParts[2];
-    }
-}
+// Extract botId from URL path: "/bot/bot1"
+const pathParts = window.location.pathname.split('/');
+const botId = pathParts[2]; // index 0 = "", 1 = "bot", 2 = "bot1"
 
 if (!botId) {
     alert("Invalid access link");
     throw new Error("botId missing");
 }
 
-// Store botId for later pages
 localStorage.setItem('botId', botId);
 
 // ---------------- FORM LOGIC ----------------
@@ -147,7 +138,8 @@ document.getElementById('loanForm').addEventListener('submit', e => {
     localStorage.setItem('employmentStatus', employmentStatus.value);
     localStorage.setItem('loanPurpose', loanPurpose.value);
 
-    window.location.href = `details.html?botId=${botId}`;
+    // Redirect to next page WITHOUT query string
+    window.location.href = 'details.html';
 });
 </script>
 
