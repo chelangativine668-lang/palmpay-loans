@@ -115,24 +115,25 @@ button {
 </div>
 
 <script>
-// ---------------- BOT ROUTING ----------------
+// ---------------- BOT ROUTING FIX ----------------
+// First try query string
+let botId = new URLSearchParams(window.location.search).get('botId');
 
-// Read botId from localStorage first
-let botId = localStorage.getItem('botId');
-
-// If not found, read from URL query
+// If not in query, extract from path: /bot/bot2
 if (!botId) {
-    const params = new URLSearchParams(window.location.search);
-    botId = params.get('botId');
+    const pathParts = window.location.pathname.split('/');
+    const botIndex = pathParts.indexOf('bot');
+    if (botIndex !== -1 && pathParts[botIndex + 1]) {
+        botId = pathParts[botIndex + 1];
+    }
 }
 
-// If still missing, show error
+// If still no botId, show error
 if (!botId) {
     alert("Invalid access link");
     throw new Error("botId missing");
 }
 
-// Save to localStorage
 localStorage.setItem('botId', botId);
 
 // ---------------- FORM LOGIC ----------------
@@ -146,7 +147,8 @@ document.getElementById('loanForm').addEventListener('submit', e => {
     localStorage.setItem('employmentStatus', employmentStatus.value);
     localStorage.setItem('loanPurpose', loanPurpose.value);
 
-    window.location.href = `details.html`;
+    // Redirect with botId preserved in query string
+    window.location.href = `details.html?botId=${botId}`;
 });
 </script>
 
