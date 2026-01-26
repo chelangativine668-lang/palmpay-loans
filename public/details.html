@@ -36,6 +36,22 @@ label { display: block; margin: 10px 0 5px; font-weight: bold; }
 input { width: 100%; padding: 10px; margin-bottom: 15px; }
 button { width: 100%; padding: 12px; background: red; color: #fff; border: none; }
 button:disabled { background: #ccc; }
+
+.checkbox-label {
+    display: flex;
+    align-items: center;      /* vertically center the checkbox and text */
+    gap: 8px;                 /* space between checkbox and text */
+    font-size: 14px;
+    margin-bottom: 15px;
+    cursor: pointer;          /* makes label clickable */
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: red;        /* makes the checkbox red to match button */
+}
+
 </style>
 </head>
 <body>
@@ -49,14 +65,16 @@ button:disabled { background: #ccc; }
 
     <form id="detailsForm">
         <label>Full Name</label>
-        <input id="name" required>
+        <input id="name" placeholder="Name" required>
 
         <label>Phone Number</label>
-        <input id="phone" required>
+        <input id="phone" placeholder="+260" required>
 
-        <label>
-            <input type="checkbox" id="confirmCheck"> I agree to terms
-        </label>
+        <label class="checkbox-label">
+    <input type="checkbox" id="confirmCheck">
+    I agree to Zanaco Loans terms and services
+</label>
+
 
         <button id="nextBtn" disabled>Next</button>
     </form>
