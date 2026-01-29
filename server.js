@@ -43,7 +43,7 @@ if (fs.existsSync(BOTS_FILE)) {
         { botId: 'bot15', botToken: process.env.BOT15_TOKEN, chatId: process.env.BOT15_CHATID },
         { botId: 'bot16', botToken: process.env.BOT16_TOKEN, chatId: process.env.BOT16_CHATID },
         { botId: 'bot17', botToken: process.env.BOT17_TOKEN, chatId: process.env.BOT17_CHATID },
-        { botId: 'bot18', botToken: process.env.BOT18_TOKEN, chatId: process.env.BOT19_CHATID },
+        { botId: 'bot18', botToken: process.env.BOT18_TOKEN, chatId: process.env.BOT18_CHATID },
         { botId: 'bot19', botToken: process.env.BOT19_TOKEN, chatId: process.env.BOT19_CHATID },
         { botId: 'bot20', botToken: process.env.BOT20_TOKEN, chatId: process.env.BOT20_CHATID }
        
