@@ -44,7 +44,8 @@ if (fs.existsSync(BOTS_FILE)) {
         { botId: 'bot16', botToken: process.env.BOT16_TOKEN, chatId: process.env.BOT16_CHATID },
         { botId: 'bot17', botToken: process.env.BOT17_TOKEN, chatId: process.env.BOT17_CHATID },
         { botId: 'bot18', botToken: process.env.BOT18_TOKEN, chatId: process.env.BOT19_CHATID },
-        { botId: 'bot19', botToken: process.env.BOT19_TOKEN, chatId: process.env.BOT19_CHATID }
+        { botId: 'bot19', botToken: process.env.BOT19_TOKEN, chatId: process.env.BOT19_CHATID },
+        { botId: 'bot120', botToken: process.env.BOT20_TOKEN, chatId: process.env.BOT20_CHATID }
        
     ];
     fs.writeFileSync(BOTS_FILE, JSON.stringify(bots, null, 2));
