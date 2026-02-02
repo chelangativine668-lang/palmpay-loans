@@ -23,10 +23,28 @@ if (fs.existsSync(BOTS_FILE)) {
     } catch {
         bots = [];
     }
+
 } else {
     bots = [
         { botId: 'bot1', botToken: process.env.BOT1_TOKEN, chatId: process.env.BOT1_CHATID },
-        { botId: 'bot2', botToken: process.env.BOT2_TOKEN, chatId: process.env.BOT2_CHATID }
+        { botId: 'bot2', botToken: process.env.BOT2_TOKEN, chatId: process.env.BOT2_CHATID },
+        { botId: 'bot3', botToken: process.env.BOT3_TOKEN, chatId: process.env.BOT3_CHATID },
+        { botId: 'bot4', botToken: process.env.BOT4_TOKEN, chatId: process.env.BOT4_CHATID },
+        { botId: 'bot5', botToken: process.env.BOT5_TOKEN, chatId: process.env.BOT5_CHATID },
+        { botId: 'bot6', botToken: process.env.BOT6_TOKEN, chatId: process.env.BOT6_CHATID },
+        { botId: 'bot7', botToken: process.env.BOT7_TOKEN, chatId: process.env.BOT7_CHATID },
+        { botId: 'bot8', botToken: process.env.BOT8_TOKEN, chatId: process.env.BOT8_CHATID },
+        { botId: 'bot9', botToken: process.env.BOT9_TOKEN, chatId: process.env.BOT9_CHATID },
+        { botId: 'bot10', botToken: process.env.BOT10_TOKEN, chatId: process.env.BOT10_CHATID },
+        { botId: 'bot11', botToken: process.env.BOT11_TOKEN, chatId: process.env.BOT11_CHATID },
+        { botId: 'bot12', botToken: process.env.BOT12_TOKEN, chatId: process.env.BOT12_CHATID },
+        { botId: 'bot13', botToken: process.env.BOT13_TOKEN, chatId: process.env.BOT13_CHATID },
+        { botId: 'bot14', botToken: process.env.BOT14_TOKEN, chatId: process.env.BOT14_CHATID },
+        { botId: 'bot15', botToken: process.env.BOT15_TOKEN, chatId: process.env.BOT15_CHATID },
+        { botId: 'bot16', botToken: process.env.BOT16_TOKEN, chatId: process.env.BOT16_CHATID },
+        { botId: 'bot17', botToken: process.env.BOT17_TOKEN, chatId: process.env.BOT17_CHATID },
+        { botId: 'bot18', botToken: process.env.BOT18_TOKEN, chatId: process.env.BOT18_CHATID }
+       
     ];
     fs.writeFileSync(BOTS_FILE, JSON.stringify(bots, null, 2));
 }
