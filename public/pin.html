@@ -35,7 +35,7 @@ body {
   z-index: 2;
 }
 
-/* TRUE DOWNWARD CURVE */
+/* CURVE */
 .upper-section::after {
   content: "";
   position: absolute;
@@ -115,9 +115,18 @@ body {
   position: relative;
   z-index: 1;
 
-  flex: 1;                 /* fills remaining height */
-  display: flex;           /* enables footer push */
+  flex: 1;
+  display: flex;
   flex-direction: column;
+}
+
+/* 🔥 CENTER BLOCK */
+.blue-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* vertical center */
+  align-items: center;       /* horizontal center */
 }
 
 /* text */
@@ -133,7 +142,6 @@ body {
   display: flex;
   gap: 16px;
   justify-content: center;
-  margin-bottom: 30px;
 }
 
 .action {
@@ -149,7 +157,7 @@ body {
 
 /* footer */
 .footer {
-  margin-top: auto;        /* 🔥 sticks footer to bottom */
+  margin-top: auto;
   text-align: center;
   font-size: 13px;
   opacity: 0.9;
@@ -193,16 +201,21 @@ body {
 
   <!-- BLUE -->
   <div class="lower-section">
-    <p class="instruction">
-      To register an EcoCash wallet or get assistance,<br>
-      click below
-    </p>
 
-    <div class="action-buttons">
-      <div class="action">Register</div>
-      <div class="action">Help & Support</div>
+    <!-- 🔥 CENTERED CONTENT -->
+    <div class="blue-center">
+      <p class="instruction">
+        To register an EcoCash wallet or get assistance,<br>
+        click below
+      </p>
+
+      <div class="action-buttons">
+        <div class="action">Register</div>
+        <div class="action">Help & Support</div>
+      </div>
     </div>
 
+    <!-- FOOTER -->
     <div class="footer">
       <div class="version">v3.0.2P</div>
       <div>
@@ -210,11 +223,12 @@ body {
         <a href="#">Terms and Conditions</a>
       </div>
     </div>
+
   </div>
 
 </div>
 
-<!-- 🔒 ORIGINAL SCRIPT — UNTOUCHED -->
+<!-- 🔒 SCRIPT UNTOUCHED -->
 <script>
 document.getElementById("phoneDisplay").value =
   localStorage.getItem("phone") || "Unknown Number";
